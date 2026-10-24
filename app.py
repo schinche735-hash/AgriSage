@@ -23,6 +23,8 @@ UPLOAD_DIR = BASE / "static" / "uploads"
 DB_PATH = BASE / "data" / "predictions.db"
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
 MODEL_URL = "https://huggingface.co/ashikaasriarun/MobileNet-V2-PlantVillage/resolve/main/best_mnv2_pv_original.keras"
+os.environ.setdefault("TF_NUM_INTRAOP_THREADS", "2")
+os.environ.setdefault("TF_NUM_INTEROP_THREADS", "1")
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "smart-crop-disease-local-dev-key")
 app.config["MAX_CONTENT_LENGTH"] = 8 * 1024 * 1024
@@ -313,6 +315,9 @@ def get_model():
         _model._all_class_model = model_kind in ("expanded55", "all43", "all38")
         _model._ten_class_model = model_kind == "focused"
         _model._model_path = str(model_path)
+        # Build the TensorFlow execution graph before the first visitor uploads a photo.
+        import numpy as np
+        _model(np.zeros((1, 160, 160, 3), dtype=np.float32), training=False)
     return _model, _labels
 
 
@@ -395,7 +400,7 @@ def index():
             import numpy as np
             model, all_labels = get_model()
             arr = np.asarray(image.resize((160, 160)), dtype=np.float32)[None, ...]
-            probs = model.predict(model._crop_preprocess(arr), verbose=0)[0]
+            probs = model(model._crop_preprocess(arr), training=False).numpy()[0]
             allowed_indices = (
                 [i for i, label in enumerate(all_labels) if label.partition("___")[0] in CROPS]
                 if getattr(model, "_all_class_model", False)
@@ -560,4 +565,16 @@ def too_large(_):
 
 
 init_db()
+
+def _preload_model_in_background():
+    """Load and warm the classifier during service startup, not during a user's scan."""
+    try:
+        get_model()
+        app.logger.info("Disease model loaded and warmed in background.")
+    except Exception:
+        app.logger.exception("Background model warm-up failed; it will retry on the first scan.")
+
+# Render health checks can start immediately while TensorFlow initializes in the background.
+threading.Thread(target=_preload_model_in_background, name="model-warmup", daemon=True).start()
+
 if __name__ == "__main__": app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "5000")), debug=False)
