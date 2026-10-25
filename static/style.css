@@ -551,12 +551,13 @@ footer.team-credit>span:first-child{font-weight:400;letter-spacing:0;color:inher
 .crop-choice:nth-child(6n+4) .crop-choice-image{border-color:#c6d9a7}
 .crop-choice:nth-child(6n+5) .crop-choice-image{border-color:#b5d2d9}
 .crop-choice:nth-child(6n) .crop-choice-image{border-color:#d6c4e6}
-.crop-choice-image img{width:100%;height:100%;display:block;object-fit:cover}
+.crop-logo{display:grid;place-items:center;width:100%;height:100%;font-size:42px;line-height:1;background:linear-gradient(145deg,#f5f8eb,#fffdf5);border-radius:50%}
+.crop-choice-image img{width:100%;height:100%;display:block;object-fit:cover}.crop-logo{font-size:42px}
 .crop-auto-icon{font-size:34px;line-height:1}
 .crop-choice-label{max-width:100%;font-size:14px;line-height:1.25;font-weight:500;text-align:center;overflow-wrap:anywhere;color:var(--ink)}
 .crop-choice:has(input:checked) .crop-choice-image,.crop-choice.is-selected .crop-choice-image{border-color:#6eaa61;box-shadow:0 0 0 3px #e3f0dc}
 .crop-choice:has(input:checked) .crop-choice-label{color:#367b3c;font-weight:650}
 .crop-choice input:focus-visible+.crop-choice-image{outline:3px solid #326b3c;outline-offset:5px}
-@media(max-width:760px){.crop-select-section{margin-bottom:20px}.crop-choice-list{gap:14px;padding:9px 2px 15px}.crop-choice{flex-basis:82px;gap:7px}.crop-choice-image{width:72px;height:72px;border-width:2px}.crop-choice-label{font-size:13px}.crop-auto-icon{font-size:28px}}
-@media(max-width:420px){.crop-choice-list{gap:12px}.crop-choice{flex-basis:70px}.crop-choice-image{width:62px;height:62px}.crop-choice-label{font-size:12px}}
+@media(max-width:760px){.crop-select-section{margin-bottom:20px}.crop-choice-list{gap:14px;padding:9px 2px 15px}.crop-choice{flex-basis:82px;gap:7px}.crop-choice-image{width:72px;height:72px;border-width:2px}.crop-choice-label{font-size:13px}.crop-auto-icon{font-size:28px}.crop-logo{font-size:32px}}
+@media(max-width:420px){.crop-choice-list{gap:12px}.crop-choice{flex-basis:70px}.crop-choice-image{width:62px;height:62px}.crop-choice-label{font-size:12px}.crop-logo{font-size:27px}}
 @media(prefers-reduced-motion:reduce){.crop-choice,.crop-choice-image{transition:none}}
