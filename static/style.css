@@ -611,3 +611,20 @@ footer.team-credit>span:first-child{font-weight:400;letter-spacing:0;color:inher
 
 /* Keep the cotton crop symbol compact inside its circle. */
 .crop-logo .cotton-boll-icon{display:block;width:1.15em;height:1.15em;overflow:visible;}
+
+
+/* Feedback button: clearly announce that submissions are not enabled yet. */
+.feedback-launcher{position:fixed;right:18px;bottom:58px;z-index:1100;display:inline-flex;align-items:center;gap:8px;border:1px solid #cfe0c7;border-radius:999px;background:#315f3d;color:#fff;padding:11px 16px;font:700 12px 'DM Sans',sans-serif;box-shadow:0 7px 22px #173c252b;cursor:pointer;transition:transform .18s,background .18s}
+.feedback-launcher:hover{background:#244d30;transform:translateY(-2px)}
+.feedback-launcher>span{font-size:15px}
+.feedback-backdrop{position:fixed;inset:0;z-index:1200;display:grid;place-items:center;padding:20px;background:rgba(17,39,25,.46);backdrop-filter:blur(3px)}
+.feedback-backdrop[hidden]{display:none}
+.feedback-notice-card{position:relative;width:min(100%,390px);padding:30px 26px 24px;border:1px solid #dce8d5;border-radius:20px;background:#fbfdf8;color:#253c2b;text-align:center;box-shadow:0 22px 70px #10271f38}
+.feedback-close{position:absolute;top:10px;right:13px;border:0;background:transparent;color:#637461;font-size:26px;line-height:1;cursor:pointer}
+.feedback-notice-icon{display:grid;place-items:center;width:48px;height:48px;margin:0 auto 13px;border-radius:15px;background:#e7f1dd;color:#3d7045;font-size:24px}
+.feedback-notice-card h2{margin:0 0 9px;font:800 21px/1.25 Manrope,sans-serif;letter-spacing:-.5px}
+.feedback-notice-card p{margin:0;color:#687967;font-size:13px;line-height:1.6}
+.feedback-ok{width:100%;margin-top:21px;border:0;border-radius:10px;background:#315f3d;color:white;padding:12px 16px;font:700 13px 'DM Sans',sans-serif;cursor:pointer}
+.feedback-ok:hover{background:#244d30}
+@media(max-width:760px){.feedback-launcher{right:12px;bottom:65px;padding:10px 13px;font-size:11px}.feedback-notice-card{padding:28px 21px 21px}.feedback-notice-card h2{font-size:19px}}
+@media(prefers-reduced-motion:reduce){.feedback-launcher{transition:none}}
