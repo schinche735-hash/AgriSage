@@ -19,20 +19,51 @@
 <div class="community-layout">
 <section class="community-feed-column">
 <div class="community-feed-toolbar"><h2>{% if lang == 'hi' %}हाल की चर्चाएँ{% elif lang == 'mr' %}अलीकडील चर्चा{% else %}Recent discussions{% endif %}</h2><span class="community-preview-badge">{% if lang == 'hi' %}डेमो पूर्वावलोकन{% elif lang == 'mr' %}डेमो पूर्वावलोकन{% else %}PREVIEW FEED{% endif %}</span></div>
-<div class="community-search"><span aria-hidden="true">⌕</span><span>{% if lang == 'hi' %}फसल, समस्या या सवाल खोजें{% elif lang == 'mr' %}पीक, समस्या किंवा प्रश्न शोधा{% else %}Search crops, problems, or questions{% endif %}</span></div>
-<article class="community-demo-post">
+<div class="community-browse" aria-label="{% if lang == 'hi' %}पोस्ट फ़िल्टर{% elif lang == 'mr' %}पोस्ट फिल्टर{% else %}Post filters{% endif %}">
+  <div class="community-tabs" role="group" aria-label="{% if lang == 'hi' %}चर्चा का प्रकार{% elif lang == 'mr' %}चर्चेचा प्रकार{% else %}Discussion type{% endif %}">
+    <button class="community-filter is-active" type="button" data-type-filter="all" aria-pressed="true">{% if lang == 'hi' %}सभी पोस्ट{% elif lang == 'mr' %}सर्व पोस्ट{% else %}All Posts{% endif %}</button>
+    <button class="community-filter" type="button" data-type-filter="question" aria-pressed="false">{% if lang == 'hi' %}सवाल{% elif lang == 'mr' %}प्रश्न{% else %}Questions{% endif %}</button>
+    <button class="community-filter" type="button" data-type-filter="tip" aria-pressed="false">{% if lang == 'hi' %}सुझाव{% elif lang == 'mr' %}टिप्स{% else %}Tips{% endif %}</button>
+  </div>
+  <div class="community-crop-filters" role="group" aria-label="{% if lang == 'hi' %}फसल के अनुसार फ़िल्टर करें{% elif lang == 'mr' %}पिकानुसार फिल्टर करा{% else %}Filter by crop{% endif %}">
+    <button class="community-crop-filter is-active" type="button" data-crop-filter="all" aria-pressed="true">{% if lang == 'hi' %}सभी फसलें{% elif lang == 'mr' %}सर्व पिके{% else %}All crops{% endif %}</button>
+    <button class="community-crop-filter" type="button" data-crop-filter="tomato" aria-pressed="false">🍅 Tomato</button>
+    <button class="community-crop-filter" type="button" data-crop-filter="cotton" aria-pressed="false">☁️ Cotton</button>
+    <button class="community-crop-filter" type="button" data-crop-filter="other" aria-pressed="false">{% if lang == 'hi' %}अन्य{% elif lang == 'mr' %}इतर{% else %}Other{% endif %}</button>
+  </div>
+</div>
+<p class="community-empty-state" hidden>{% if lang == 'hi' %}इस फ़िल्टर में अभी कोई नमूना पोस्ट नहीं है।{% elif lang == 'mr' %}या फिल्टरमध्ये सध्या नमुना पोस्ट नाहीत.{% else %}No sample posts in this filter yet.{% endif %}</p>
+<article class="community-demo-post" data-crop="tomato" data-type="question">
+<div class="community-sample-label">{% if lang == 'hi' %}नमूना पोस्ट{% elif lang == 'mr' %}नमुना पोस्ट{% else %}SAMPLE POST{% endif %} · {% if lang == 'hi' %}सवाल{% elif lang == 'mr' %}प्रश्न{% else %}QUESTION{% endif %}</div>
 <div class="community-post-top"><span class="community-avatar avatar-green">RK</span><div><strong>Ramesh K.</strong><small>{% if lang == 'hi' %}टमाटर किसान · 2 घंटे पहले{% elif lang == 'mr' %}टोमॅटो शेतकरी · २ तासांपूर्वी{% else %}Tomato farmer · 2 hours ago{% endif %}</small></div><span class="community-crop-tag">Tomato</span></div>
 <p>{% if lang == 'hi' %}मेरे टमाटर की पत्तियों पर धब्बे दिख रहे हैं। क्या किसी को इसका कारण पता है?{% elif lang == 'mr' %}माझ्या टोमॅटोच्या पानांवर डाग दिसत आहेत. याचे कारण कोणाला माहीत आहे का?{% else %}Spots are appearing on my tomato leaves. Has anyone seen this before?{% endif %}</p>
 <img class="community-post-photo" src="{{ url_for('static', filename='disease_images/tomato_leaf_mold.jpg') }}" alt="{% if lang == 'hi' %}टमाटर की पत्तियों पर धब्बों का उदाहरण फोटो{% elif lang == 'mr' %}टोमॅटोच्या पानांवरील डागांचा नमुना फोटो{% else %}Example photo of tomato leaf symptoms{% endif %}">
 <div class="community-post-meta"><span>♡ 12 {% if lang == 'hi' %}पसंद{% elif lang == 'mr' %}आवडी{% else %}likes{% endif %}</span><span>◯ 4 {% if lang == 'hi' %}जवाब{% elif lang == 'mr' %}उत्तरे{% else %}replies{% endif %}</span></div>
 <div class="community-post-reply"><strong>{% if lang == 'hi' %}किसान की प्रतिक्रिया{% elif lang == 'mr' %}शेतकऱ्याचे उत्तर{% else %}Farmer reply{% endif %}:</strong> {% if lang == 'hi' %}पत्तियों के नीचे भी देखें और धब्बों की तस्वीर साझा करें।{% elif lang == 'mr' %}पानांच्या खालच्या बाजूला देखील तपासा आणि डागांचा फोटो शेअर करा.{% else %}Check the underside of the leaves too, and share a close-up of the spots.{% endif %}</div>
 </article>
-<article class="community-demo-post">
+<article class="community-demo-post" data-crop="cotton" data-type="question">
+<div class="community-sample-label">{% if lang == 'hi' %}नमूना पोस्ट{% elif lang == 'mr' %}नमुना पोस्ट{% else %}SAMPLE POST{% endif %} · {% if lang == 'hi' %}सवाल{% elif lang == 'mr' %}प्रश्न{% else %}QUESTION{% endif %}</div>
 <div class="community-post-top"><span class="community-avatar avatar-gold">SP</span><div><strong>Sunita P.</strong><small>{% if lang == 'hi' %}कपास किसान · कल{% elif lang == 'mr' %}कापूस शेतकरी · काल{% else %}Cotton farmer · Yesterday{% endif %}</small></div><span class="community-crop-tag">Cotton</span></div>
 <p>{% if lang == 'hi' %}कपास के पौधों की पत्तियाँ मुड़ रही हैं। मुझे किन बातों की जाँच करनी चाहिए?{% elif lang == 'mr' %}कापसाच्या झाडांची पाने वाकडी होत आहेत. मी काय तपासावे?{% else %}My cotton plant leaves are curling. What should I check first?{% endif %}</p>
 <img class="community-post-photo" src="{{ url_for('static', filename='disease_images/plantvillage_cotton_bacterial_blight.jpg') }}" alt="{% if lang == 'hi' %}कपास की पत्तियों का उदाहरण फोटो{% elif lang == 'mr' %}कापसाच्या पानांचा नमुना फोटो{% else %}Example photo of cotton leaves{% endif %}">
 <div class="community-post-meta"><span>♡ 8 {% if lang == 'hi' %}पसंद{% elif lang == 'mr' %}आवडी{% else %}likes{% endif %}</span><span>◯ 3 {% if lang == 'hi' %}जवाब{% elif lang == 'mr' %}उत्तरे{% else %}replies{% endif %}</span></div>
 <div class="community-post-reply"><strong>{% if lang == 'hi' %}किसान की प्रतिक्रिया{% elif lang == 'mr' %}शेतकऱ्याचे उत्तर{% else %}Farmer reply{% endif %}:</strong> {% if lang == 'hi' %}पानी, कीट और नई पत्तियों की स्थिति भी जाँचें।{% elif lang == 'mr' %}पाणी, कीड आणि नवीन पानांची स्थितीही तपासा.{% else %}Check watering, pests, and whether the newest leaves are affected too.{% endif %}</div>
+</article>
+<article class="community-demo-post" data-crop="tomato" data-type="tip">
+<div class="community-sample-label">{% if lang == 'hi' %}नमूना पोस्ट{% elif lang == 'mr' %}नमुना पोस्ट{% else %}SAMPLE POST{% endif %} · {% if lang == 'hi' %}सुझाव{% elif lang == 'mr' %}टिप{% else %}TIP{% endif %}</div>
+<div class="community-post-top"><span class="community-avatar avatar-green">RK</span><div><strong>Ramesh K.</strong><small>{% if lang == 'hi' %}टमाटर किसान · नमूना{% elif lang == 'mr' %}टोमॅटो शेतकरी · नमुना{% else %}Tomato farmer · sample{% endif %}</small></div><span class="community-crop-tag">Tomato</span></div>
+<p>{% if lang == 'hi' %}पत्तियों की जाँच करते समय पौधे के दोनों तरफ देखें और साफ़, रोशनी वाली तस्वीर लें।{% elif lang == 'mr' %}पानांची तपासणी करताना दोन्ही बाजू पाहा आणि स्पष्ट, उजेडातील फोटो घ्या.{% else %}When checking leaves, inspect both sides and take a clear photo in good light.{% endif %}</p>
+<img class="community-post-photo" src="{{ url_for('static', filename='disease_images/tomato_leaf_mold.jpg') }}" alt="{% if lang == 'hi' %}टमाटर के पत्ते का नमूना फोटो{% elif lang == 'mr' %}टोमॅटो पानाचा नमुना फोटो{% else %}Sample tomato leaf photo{% endif %}">
+<div class="community-post-meta"><span>♡ {% if lang == 'hi' %}निष्क्रिय{% elif lang == 'mr' %}निष्क्रिय{% else %}Inactive{% endif %}</span><span>◯ {% if lang == 'hi' %}निष्क्रिय{% elif lang == 'mr' %}निष्क्रिय{% else %}Inactive{% endif %}</span></div>
+<div class="community-post-reply"><strong>{% if lang == 'hi' %}सुझाव{% elif lang == 'mr' %}टीप{% else %}Tip{% endif %}:</strong> {% if lang == 'hi' %}एक ही फोटो से बीमारी की पुष्टि न करें; लक्षणों और पौधे की स्थिति की भी जाँच करें।{% elif lang == 'mr' %}एका फोटोवरून रोग निश्चित करू नका; लक्षणे आणि झाडाची स्थितीही तपासा.{% else %}Do not confirm a disease from one photo alone; check symptoms and overall plant condition too.{% endif %}</div>
+</article>
+<article class="community-demo-post" data-crop="cotton" data-type="tip">
+<div class="community-sample-label">{% if lang == 'hi' %}नमूना पोस्ट{% elif lang == 'mr' %}नमुना पोस्ट{% else %}SAMPLE POST{% endif %} · {% if lang == 'hi' %}सुझाव{% elif lang == 'mr' %}टिप{% else %}TIP{% endif %}</div>
+<div class="community-post-top"><span class="community-avatar avatar-gold">SP</span><div><strong>Sunita P.</strong><small>{% if lang == 'hi' %}कपास किसान · नमूना{% elif lang == 'mr' %}कापूस शेतकरी · नमुना{% else %}Cotton farmer · sample{% endif %}</small></div><span class="community-crop-tag">Cotton</span></div>
+<p>{% if lang == 'hi' %}पत्तियों में बदलाव दिखे तो सिंचाई, कीट और नई पत्तियों की स्थिति नोट करें।{% elif lang == 'mr' %}पानांमध्ये बदल दिसल्यास पाणी, कीड आणि नवीन पानांची स्थिती नोंदवा.{% else %}If leaves change, note watering, possible pests, and whether new leaves are affected.{% endif %}</p>
+<img class="community-post-photo" src="{{ url_for('static', filename='disease_images/plantvillage_cotton_bacterial_blight.jpg') }}" alt="{% if lang == 'hi' %}कपास की पत्तियों का नमूना फोटो{% elif lang == 'mr' %}कापसाच्या पानांचा नमुना फोटो{% else %}Sample cotton leaf photo{% endif %}">
+<div class="community-post-meta"><span>♡ {% if lang == 'hi' %}निष्क्रिय{% elif lang == 'mr' %}निष्क्रिय{% else %}Inactive{% endif %}</span><span>◯ {% if lang == 'hi' %}निष्क्रिय{% elif lang == 'mr' %}निष्क्रिय{% else %}Inactive{% endif %}</span></div>
+<div class="community-post-reply"><strong>{% if lang == 'hi' %}सुझाव{% elif lang == 'mr' %}टीप{% else %}Tip{% endif %}:</strong> {% if lang == 'hi' %}लक्षणों की तस्वीरें अलग-अलग दिनों में लें ताकि बदलाव देख सकें।{% elif lang == 'mr' %}बदल पाहण्यासाठी वेगवेगळ्या दिवशी लक्षणांचे फोटो घ्या.{% else %}Take symptom photos on different days to help track changes over time.{% endif %}</div>
 </article>
 <div class="community-compose-preview"><span class="compose-plus" aria-hidden="true">＋</span><div><strong>{% if lang == 'hi' %}अपना सवाल साझा करें{% elif lang == 'mr' %}तुमचा प्रश्न शेअर करा{% else %}Share your own question{% endif %}</strong><small>{% if lang == 'hi' %}पोस्ट करने और जवाब देने के लिए लॉगिन आवश्यक होगा।{% elif lang == 'mr' %}पोस्ट करण्यासाठी आणि उत्तर देण्यासाठी लॉगिन आवश्यक असेल.{% else %}Sign-in will be required to post photos or reply.{% endif %}</small></div><button type="button" disabled>{% if lang == 'hi' %}जल्द{% elif lang == 'mr' %}लवकरच{% else %}Coming soon{% endif %}</button></div>
 <p class="community-page-note">{% if lang == 'hi' %}यह उदाहरणों वाला पूर्वावलोकन है। पोस्ट, पसंद, जवाब और लॉगिन अभी सक्रिय नहीं हैं।{% elif lang == 'mr' %}हे नमुना पूर्वावलोकन आहे. पोस्ट, आवडी, उत्तरे आणि लॉगिन सध्या सक्रिय नाहीत.{% else %}This is a sample preview. Posts, likes, replies, and sign-in are not active yet.{% endif %}</p>
@@ -43,5 +74,44 @@
 </aside>
 </div>
 </main>
+
+<script>
+(() => {
+  const posts = Array.from(document.querySelectorAll('.community-demo-post[data-crop][data-type]'));
+  const typeButtons = Array.from(document.querySelectorAll('[data-type-filter]'));
+  const cropButtons = Array.from(document.querySelectorAll('[data-crop-filter]'));
+  const emptyState = document.querySelector('.community-empty-state');
+  let selectedType = 'all';
+  let selectedCrop = 'all';
+  function updateFeed() {
+    let visible = 0;
+    posts.forEach(post => {
+      const matchesType = selectedType === 'all' || post.dataset.type === selectedType;
+      const matchesCrop = selectedCrop === 'all' || post.dataset.crop === selectedCrop || (selectedCrop === 'other' && !['tomato','cotton'].includes(post.dataset.crop));
+      post.hidden = !(matchesType && matchesCrop);
+      if (!post.hidden) visible++;
+    });
+    if (emptyState) emptyState.hidden = visible !== 0;
+  }
+  function activate(buttons, activeButton) {
+    buttons.forEach(button => {
+      const active = button === activeButton;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+  }
+  typeButtons.forEach(button => button.addEventListener('click', () => {
+    selectedType = button.dataset.typeFilter;
+    activate(typeButtons, button);
+    updateFeed();
+  }));
+  cropButtons.forEach(button => button.addEventListener('click', () => {
+    selectedCrop = button.dataset.cropFilter;
+    activate(cropButtons, button);
+    updateFeed();
+  }));
+  updateFeed();
+})();
+</script>
 </body>
 </html>
