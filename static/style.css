@@ -636,3 +636,34 @@ footer.team-credit>span:first-child{font-weight:400;letter-spacing:0;color:inher
 .community-launcher>span{font-size:16px}
 @media(max-width:760px){.community-launcher{right:12px;bottom:116px;padding:10px 13px;font-size:11px}}
 @media(prefers-reduced-motion:reduce){.community-launcher{transition:none}}
+
+
+/* Community preview: illustrative feed, with sample-only posts and disabled actions. */
+.community-backdrop{align-items:center;overflow-y:auto;padding:18px}
+.community-preview{position:relative;width:min(100%,570px);max-height:min(90vh,820px);overflow-y:auto;padding:25px;border:1px solid #dce8d5;border-radius:22px;background:#f7faf4;color:#263d2b;box-shadow:0 22px 70px #10271f38}
+.community-preview-header{display:flex;align-items:center;gap:14px;padding:4px 28px 20px 0;border-bottom:1px solid #e2eadd}
+.community-mark{display:grid;place-items:center;flex:0 0 54px;width:54px;height:54px;border-radius:17px;background:#e1eed8;color:#376a42;font-size:29px}
+.community-eyebrow{margin:0 0 3px;color:#64805e;font-size:9px;font-weight:800;letter-spacing:1.5px}
+.community-preview-header h2{margin:0 0 4px;font:800 23px/1.2 Manrope,sans-serif;letter-spacing:-.5px}
+.community-preview-header p{margin:0;color:#71806e;font-size:12px;line-height:1.45}
+.community-preview-toolbar{display:flex;justify-content:space-between;align-items:center;padding:17px 0 10px;font-size:13px;font-weight:800}
+.community-preview-badge{border:1px solid #d6e5cc;border-radius:999px;background:#eaf3e4;color:#477341;padding:5px 8px;font-size:9px;letter-spacing:.8px}
+.community-demo-posts{display:grid;gap:11px}
+.community-demo-post{padding:14px;border:1px solid #e1e9dc;border-radius:15px;background:#fff}
+.community-post-top{display:flex;align-items:center;gap:9px}
+.community-avatar{display:grid;place-items:center;flex:0 0 35px;width:35px;height:35px;border-radius:50%;font-size:11px;font-weight:800}
+.avatar-green{background:#e2efdb;color:#3e7042}.avatar-gold{background:#f7ecd0;color:#87672a}
+.community-post-top strong{display:block;font-size:12px}
+.community-post-top small{display:block;margin-top:2px;color:#82907f;font-size:10px}
+.community-crop-tag{margin-left:auto;padding:5px 8px;border-radius:7px;background:#eef4e8;color:#54734b;font-size:10px;font-weight:700}
+.community-demo-post>p{margin:12px 0;color:#3c4c3b;font-size:12px;line-height:1.55}
+.community-post-meta{display:flex;gap:17px;padding-top:10px;border-top:1px solid #f0f3ed;color:#849080;font-size:10px}
+.community-preview-compose{display:flex;align-items:center;gap:10px;margin-top:13px;padding:12px;border:1px dashed #cbdac2;border-radius:13px;background:#f0f6eb}
+.community-preview-compose>span{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#dfead6;color:#527b49;font-size:21px}
+.community-preview-compose>div{flex:1;min-width:0}
+.community-preview-compose strong{display:block;font-size:11px}
+.community-preview-compose small{display:block;margin-top:3px;color:#7b8978;font-size:10px;line-height:1.4}
+.community-preview-compose button{border:0;border-radius:8px;background:#dfe7db;color:#74816f;padding:7px 9px;font-size:10px;font-weight:800}
+.community-preview-note{margin:12px 0 0;color:#879184;text-align:center;font-size:10px;line-height:1.5}
+.community-preview .feedback-ok{margin-top:13px}
+@media(max-width:520px){.community-preview{padding:19px 15px;border-radius:18px}.community-preview-header h2{font-size:20px}.community-preview-header p{font-size:11px}.community-demo-post{padding:12px}.community-demo-post>p{font-size:11px}.community-preview-header{gap:10px}.community-mark{flex-basis:45px;width:45px;height:45px;font-size:24px}}
