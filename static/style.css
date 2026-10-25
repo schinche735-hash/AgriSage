@@ -767,3 +767,8 @@ footer.team-credit>span:first-child{font-weight:400;letter-spacing:0;color:inher
  .community-page .community-language-picker{padding:6px 9px}
  .community-page .community-language-picker select{font-size:11px;max-width:85px}
 }
+
+
+/* Community development status label */
+.community-under-development{display:inline-flex;align-items:center;gap:7px;margin-bottom:10px;padding:7px 11px;border:1px solid #d4e5c8;border-radius:999px;background:#f8fbf4;color:#4c7743;font-size:10px;font-weight:850;letter-spacing:1px}
+.community-under-development:before{content:"";width:7px;height:7px;border-radius:50%;background:#83ad63}
