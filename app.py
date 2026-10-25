@@ -65,7 +65,7 @@ CROP_NAMES = {
     "Wheat": {"en": "Wheat", "hi": "गेहूँ", "mr": "गहू"},
     "Tur": {"en": "Tur / pigeonpea", "hi": "अरहर / तूर", "mr": "तूर / तूरडाळ"},
     "Cotton": {"en": "Cotton", "hi": "कपास", "mr": "कापूस"},
-    "Squash": {"en": "Squash", "hi": "स्क्वैश", "mr": "स्क्वॅश"},
+    "Squash": {"en": "Squash (gourd)", "hi": "स्क्वैश (लौकी परिवार)", "mr": "स्क्वॅश (भोपळा वर्ग)"},
     "Strawberry": {"en": "Strawberry", "hi": "स्ट्रॉबेरी", "mr": "स्ट्रॉबेरी"},
 }
 # Soybean, wheat, and tur are available only when the expanded trained model is installed.
