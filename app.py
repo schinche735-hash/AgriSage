@@ -458,6 +458,14 @@ def index():
     return render_template("index.html", result=result, lang=lang, crop_choice=crop_choice, crop_options=crop_options, model_trained=(EXPANDED_MODEL_PATH.exists() and EXPANDED_LABELS_PATH.exists()) or (ALL_MODEL_PATH.exists() and ALL_LABELS_PATH.exists()) or (TEN_MODEL_PATH.exists() and TEN_LABELS_PATH.exists()))
 
 
+@app.route("/community")
+def community():
+    lang = request.args.get("lang", "en")
+    if lang not in LANG:
+        lang = "en"
+    return render_template("community.html", lang=lang)
+
+
 @app.route("/library")
 def library():
     lang = request.args.get("lang", "en")
