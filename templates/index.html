@@ -13,7 +13,38 @@
 <section class="hero"><div class="hero-copy"><h1>{% if lang == 'hi' %}रोग पहचानें।<br><em>फसल बचाएँ।</em>{% elif lang == 'mr' %}रोग ओळखा.<br><em>पीक जपा.</em>{% else %}Spot the disease.<br><em>Protect the crop.</em>{% endif %}</h1>
 </div>
 <div class="hero-art" aria-label="Leaf illustration"><div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div><div class="art-leaf" aria-hidden="true"><svg viewBox="0 0 100 100"><path d="M50 78V48" fill="none" stroke="#2f6637" stroke-width="4" stroke-linecap="round"/><path d="M50 54C22 54 14 35 17 16c22 0 39 11 33 38Z" fill="#e0f3b5"/><path d="M50 66C50 41 66 24 87 25c2 22-12 39-37 41Z" fill="#4d8d49"/><path d="M28 28l22 26m26-17L50 65" fill="none" stroke="#f3f9e9" stroke-width="3" stroke-linecap="round"/></svg></div></div></section>
-<section class="crop-select-section"><fieldset class="crop-picker-wrap"><legend>{% if lang == 'hi' %}फसल चुनें{% elif lang == 'mr' %}पीक निवडा{% else %}Choose a crop{% endif %}</legend><div class="crop-choice-list">{% for key, label in crop_options %}<label class="crop-choice{% if crop_choice == key %} is-selected{% endif %}" for="crop-choice-{{ loop.index }}"><input id="crop-choice-{{ loop.index }}" type="radio" name="crop" form="upload-form" value="{{ key }}" {% if crop_choice == key %}checked{% endif %}><span class="crop-choice-image">{% if key == 'auto' %}<span class="crop-auto-icon" aria-hidden="true">🌿</span>{% elif key == 'Corn_(maize)' %}<img src="{{ url_for('static', filename='disease_images/corn_common_rust.jpg') }}" alt="" loading="lazy">{% elif key == 'Potato' %}<img src="{{ url_for('static', filename='disease_images/potato_early_blight.jpg') }}" alt="" loading="lazy">{% elif key == 'Tomato' %}<img src="{{ url_for('static', filename='disease_images/tomato_leaf_mold.jpg') }}" alt="" loading="lazy">{% else %}<span class="crop-auto-icon" aria-hidden="true">🌱</span>{% endif %}</span><span class="crop-choice-label">{{ label }}</span></label>{% endfor %}</div></fieldset></section>
+<section class="crop-select-section" aria-label="{% if lang == 'hi' %}फसल चुनें{% elif lang == 'mr' %}पीक निवडा{% else %}Choose a crop{% endif %}">
+  <fieldset class="crop-picker-wrap">
+    <legend class="visually-hidden">{% if lang == 'hi' %}फसल चुनें{% elif lang == 'mr' %}पीक निवडा{% else %}Choose a crop{% endif %}</legend>
+    <div class="crop-choice-list" role="radiogroup" aria-label="{% if lang == 'hi' %}फसल चुनें{% elif lang == 'mr' %}पीक निवडा{% else %}Choose a crop{% endif %}">
+      {% for key, label in crop_options %}
+      <label class="crop-choice{% if crop_choice == key %} is-selected{% endif %}" for="crop-choice-{{ loop.index }}">
+        <input id="crop-choice-{{ loop.index }}" type="radio" name="crop" form="upload-form" value="{{ key }}" {% if crop_choice == key %}checked{% endif %}>
+        <span class="crop-choice-image">
+          {% if key == 'auto' %}<span class="crop-auto-icon" aria-hidden="true">🌿</span>
+          {% elif key == 'Corn_(maize)' %}<img src="{{ url_for('static', filename='disease_images/corn_common_rust.jpg') }}" alt="" loading="lazy">
+          {% elif key == 'Potato' %}<img src="{{ url_for('static', filename='disease_images/potato_early_blight.jpg') }}" alt="" loading="lazy">
+          {% elif key == 'Tomato' %}<img src="{{ url_for('static', filename='disease_images/tomato_leaf_mold.jpg') }}" alt="" loading="lazy">
+          {% elif key == 'Apple' %}<img src="{{ url_for('static', filename='disease_images/plantvillage_apple_apple_scab.jpg') }}" alt="" loading="lazy">
+          {% elif key == 'Cherry_(including_sour)' %}<img src="{{ url_for('static', filename='disease_images/plantvillage_cherry_including_sour_powdery_mildew.jpg') }}" alt="" loading="lazy">
+          {% elif key == 'Grape' %}<img src="{{ url_for('static', filename='disease_images/plantvillage_grape_black_rot.jpg') }}" alt="" loading="lazy">
+          {% elif key == 'Orange' %}<img src="{{ url_for('static', filename='disease_images/plantvillage_orange_haunglongbing_citrus_greening.jpg') }}" alt="" loading="lazy">
+          {% elif key == 'Peach' %}<img src="{{ url_for('static', filename='disease_images/plantvillage_peach_bacterial_spot.jpg') }}" alt="" loading="lazy">
+          {% elif key == 'Pepper,_bell' %}<img src="{{ url_for('static', filename='disease_images/plantvillage_pepper_bell_bacterial_spot.jpg') }}" alt="" loading="lazy">
+          {% elif key == 'Soybean' %}<img src="{{ url_for('static', filename='disease_images/plantvillage_soybean_dry_leaf.jpg') }}" alt="" loading="lazy">
+          {% elif key == 'Wheat' %}<img src="{{ url_for('static', filename='disease_images/plantvillage_wheat_yellow_rust.jpg') }}" alt="" loading="lazy">
+          {% elif key == 'Tur' %}<img src="{{ url_for('static', filename='disease_images/plantvillage_tur_cercospora_leaf_spot.jpg') }}" alt="" loading="lazy">
+          {% elif key == 'Cotton' %}<img src="{{ url_for('static', filename='disease_images/plantvillage_cotton_bacterial_blight.jpg') }}" alt="" loading="lazy">
+          {% elif key == 'Squash' %}<img src="{{ url_for('static', filename='disease_images/plantvillage_squash_powdery_mildew.jpg') }}" alt="" loading="lazy">
+          {% elif key == 'Strawberry' %}<img src="{{ url_for('static', filename='disease_images/plantvillage_strawberry_leaf_scorch.jpg') }}" alt="" loading="lazy">
+          {% else %}<span class="crop-auto-icon" aria-hidden="true">🌱</span>{% endif %}
+        </span>
+        <span class="crop-choice-label">{{ label }}</span>
+      </label>
+      {% endfor %}
+    </div>
+  </fieldset>
+</section>
 {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="messages">{% for category, message in messages %}<div class="alert {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}
 
 <section class="scan-grid">
@@ -133,16 +164,7 @@ languageButton.addEventListener('keydown',event=>{if(['ArrowDown','Enter',' '].i
 languageMenu.addEventListener('click',event=>{const option=event.target.closest('[data-value]');if(option)location.href='/?lang='+encodeURIComponent(option.dataset.value);});
 languageMenu.addEventListener('keydown',event=>{const items=[...languageMenu.querySelectorAll('[role="option"]')],index=items.indexOf(document.activeElement);if(event.key==='Escape'){event.preventDefault();closeLanguageMenu();languageButton.focus();}else if(event.key==='ArrowDown'||event.key==='ArrowUp'){event.preventDefault();items[Math.max(0,Math.min(items.length-1,index+(event.key==='ArrowDown'?1:-1)))]?.focus();}else if(event.key==='Home'||event.key==='End'){event.preventDefault();items[event.key==='Home'?0:items.length-1]?.focus();}else if(event.key==='Enter'||event.key===' '){event.preventDefault();document.activeElement?.click();}});
 document.addEventListener('click',event=>{if(!languageShell.contains(event.target))closeLanguageMenu();});
-const cropSelect=document.getElementById('crop'),cropShell=document.getElementById('crop-select-shell'),cropButton=document.getElementById('crop-menu-button'),cropMenu=document.getElementById('crop-menu'),cropLabel=document.getElementById('crop-picker-label');
-function syncCropMode(){const isAuto=cropSelect.value==='auto';cropButton.classList.toggle('crop-picker-auto',isAuto);cropLabel.textContent=cropSelect.options[cropSelect.selectedIndex]?.text||'';[...cropMenu.querySelectorAll('[role="option"]')].forEach(item=>{const selected=item.dataset.value===cropSelect.value;item.setAttribute('aria-selected',String(selected));item.classList.toggle('is-selected',selected);});}
-function closeCropMenu(){cropMenu.hidden=true;cropButton.setAttribute('aria-expanded','false');}
-function openCropMenu(){cropMenu.hidden=false;cropButton.setAttribute('aria-expanded','true');const active=cropMenu.querySelector('[aria-selected="true"]');if(active)active.scrollIntoView({block:'nearest'});}
-[...cropSelect.options].forEach(option=>{const item=document.createElement('button');item.type='button';item.className='crop-menu-option';item.setAttribute('role','option');item.dataset.value=option.value;item.textContent=option.text;item.setAttribute('aria-selected',String(option.selected));item.addEventListener('click',()=>{cropSelect.value=option.value;cropSelect.dispatchEvent(new Event('change',{bubbles:true}));closeCropMenu();cropButton.focus();});cropMenu.appendChild(item);});
-cropButton.addEventListener('click',()=>cropMenu.hidden?openCropMenu():closeCropMenu());
-cropButton.addEventListener('keydown',event=>{if(event.key==='ArrowDown'||event.key==='Enter'||event.key===' '){event.preventDefault();openCropMenu();const selected=cropMenu.querySelector('[aria-selected="true"]');selected?.focus();}});
-cropMenu.addEventListener('keydown',event=>{const items=[...cropMenu.querySelectorAll('[role="option"]')],index=items.indexOf(document.activeElement);if(event.key==='Escape'){event.preventDefault();closeCropMenu();cropButton.focus();}else if(event.key==='ArrowDown'||event.key==='ArrowUp'){event.preventDefault();items[Math.max(0,Math.min(items.length-1,index+(event.key==='ArrowDown'?1:-1)))]?.focus();}else if(event.key==='Home'||event.key==='End'){event.preventDefault();items[event.key==='Home'?0:items.length-1]?.focus();}});
-document.addEventListener('click',event=>{if(!cropShell.contains(event.target))closeCropMenu();});
-cropSelect.addEventListener('change',syncCropMode);syncCropMode();
+document.querySelectorAll('.crop-choice input[name="crop"]').forEach(choice=>choice.addEventListener('change',()=>{document.querySelectorAll('.crop-choice').forEach(card=>card.classList.toggle('is-selected',card.contains(choice)&&choice.checked));}));
 input.addEventListener('change',()=>showFile(input.files[0]));zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('dragging')});zone.addEventListener('dragleave',()=>zone.classList.remove('dragging'));zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('dragging');if(e.dataTransfer.files.length){input.files=e.dataTransfer.files;showFile(e.dataTransfer.files[0]);}});document.getElementById('upload-form').addEventListener('submit',async event=>{
   event.preventDefault();
   const form=event.currentTarget;
