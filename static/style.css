@@ -608,3 +608,6 @@ footer.team-credit>span:first-child{font-weight:400;letter-spacing:0;color:inher
   .crop-logo{font-size:clamp(9px,3.3vw,16px)}
   .crop-choice-label{font-size:6px;line-height:1.05}
 }
+
+/* Keep the cotton crop symbol compact inside its circle. */
+.crop-logo .cotton-boll-icon{display:block;width:1.15em;height:1.15em;overflow:visible;}
