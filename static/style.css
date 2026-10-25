@@ -533,3 +533,22 @@ footer.team-credit>span:first-child{font-weight:400;letter-spacing:0;color:inher
 /* Keep the squirrel and tortoise visible beside the animated trees on mobile. */
 @media(max-width:760px){.scan-grid>.growing-plant{width:94px;max-width:25vw;height:66px}.scan-grid>.growing-plant svg{overflow:visible}.scan-grid>.growing-plant .garden-extra{width:100%;height:100%;overflow:visible!important}.scan-grid>.plant-left .garden-squirrel,.scan-grid>.plant-left .garden-tortoise,.scan-grid>.plant-right .garden-squirrel,.scan-grid>.plant-right .garden-tortoise{display:inline!important}}
 @media(max-width:370px){.scan-grid>.growing-plant{width:78px;height:58px}}
+
+
+/* Circular crop chooser between the hero and upload panel */
+.crop-select-section{width:min(100% - 40px,900px);margin:clamp(20px,3vw,34px) auto 26px;position:relative;z-index:2}
+.crop-picker-wrap{border:0;min-width:0;margin:0;padding:0;text-align:center}
+.crop-picker-wrap legend{width:100%;padding:0;margin:0 0 18px;color:var(--ink);font:700 17px/1.35 'Manrope',sans-serif}
+.crop-choice-list{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:clamp(18px,4vw,42px)}
+.crop-choice{display:flex;flex:0 1 120px;flex-direction:column;align-items:center;gap:9px;min-width:94px;padding:0 2px 6px;cursor:pointer;color:var(--ink);border-radius:16px;outline:none;transition:transform .18s ease}
+.crop-choice:hover{transform:translateY(-3px)}
+.crop-choice input{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;clip-path:inset(50%)}
+.crop-choice-image{display:grid;place-items:center;width:clamp(88px,10vw,116px);aspect-ratio:1;overflow:hidden;border-radius:50%;border:3px solid #dce9d2;background:#fffef9;box-shadow:0 3px 12px #244b1a0d;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+.crop-choice-image img{width:100%;height:100%;display:block;object-fit:cover}
+.crop-auto-icon{font-size:39px;line-height:1}
+.crop-choice-label{font-size:15px;line-height:1.3;font-weight:600;text-align:center;overflow-wrap:anywhere}
+.crop-choice:has(input:checked) .crop-choice-image,.crop-choice.is-selected .crop-choice-image{border-color:#77b75f;box-shadow:0 0 0 4px #e3f2d9,0 5px 16px #244b1a12}
+.crop-choice:has(input:checked) .crop-choice-label{color:#367b3c}
+.crop-choice input:focus-visible+.crop-choice-image{outline:3px solid #326b3c;outline-offset:5px}
+@media(max-width:520px){.crop-select-section{width:calc(100% - 28px);margin:21px auto 22px}.crop-picker-wrap legend{font-size:16px;margin-bottom:15px}.crop-choice-list{gap:17px 13px}.crop-choice{flex-basis:88px;min-width:80px;gap:7px}.crop-choice-image{width:78px;border-width:2.5px}.crop-choice-label{font-size:13px}.crop-auto-icon{font-size:31px}}
+@media(prefers-reduced-motion:reduce){.crop-choice,.crop-choice-image{transition:none}}
