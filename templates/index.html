@@ -129,6 +129,19 @@
   <span><span class="team-bullet" aria-hidden="true">•</span>Shantanu Kishor Thakare</span>
   <span><span class="team-bullet" aria-hidden="true">•</span>Meher Bhimrao Kharabe</span>
 </footer>
+<button class="feedback-launcher" id="feedback-launcher" type="button" aria-haspopup="dialog" aria-controls="feedback-notice">
+  <span aria-hidden="true">✉</span>
+  {% if lang == 'hi' %}फ़ीडबैक{% elif lang == 'mr' %}अभिप्राय{% else %}Feedback{% endif %}
+</button>
+<div class="feedback-backdrop" id="feedback-notice" role="dialog" aria-modal="true" aria-labelledby="feedback-title" hidden>
+  <section class="feedback-notice-card">
+    <button class="feedback-close" id="feedback-close" type="button" aria-label="{% if lang == 'hi' %}बंद करें{% elif lang == 'mr' %}बंद करा{% else %}Close{% endif %}">×</button>
+    <span class="feedback-notice-icon" aria-hidden="true">✉</span>
+    <h2 id="feedback-title">{% if lang == 'hi' %}फ़ीडबैक सुविधा विकसित हो रही है{% elif lang == 'mr' %}अभिप्राय सुविधा विकसित होत आहे{% else %}Feedback is under development{% endif %}</h2>
+    <p>{% if lang == 'hi' %}हम अभी फ़ीडबैक एकत्र नहीं कर रहे हैं। यह सुविधा जल्द उपलब्ध होगी।{% elif lang == 'mr' %}आम्ही सध्या अभिप्राय गोळा करत नाही. ही सुविधा लवकरच उपलब्ध होईल.{% else %}We are not collecting feedback yet. This feature will be available in a future update.{% endif %}</p>
+    <button class="feedback-ok" id="feedback-ok" type="button">{% if lang == 'hi' %}समझ गया{% elif lang == 'mr' %}ठीक आहे{% else %}Got it{% endif %}</button>
+  </section>
+</div>
 <script>
 const input=document.getElementById('leaf_image'),title=document.getElementById('file-title'),sub=document.getElementById('file-subtitle'),wrap=document.getElementById('preview-wrap'),preview=document.getElementById('preview'),zone=document.querySelector('.dropzone');
 function showFile(file){if(!file)return;zone.classList.add('has-file');title.textContent=file.name;sub.textContent=(file.size/1024/1024).toFixed(2)+' MB '+({en:'selected',hi:'चुनी गई',mr:'निवडलेला'}[document.documentElement.lang]||'selected');if(file.type.startsWith('image/')){preview.src=URL.createObjectURL(file);wrap.hidden=false;}else{wrap.hidden=true;}}
