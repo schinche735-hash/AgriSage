@@ -751,3 +751,19 @@ footer.team-credit>span:first-child{font-weight:400;letter-spacing:0;color:inher
  .community-crop-filter{flex:0 0 auto;font-size:11px}
  .community-post-photo{height:220px}
 }
+
+
+/* Compact language menu for the full-page Community header. */
+.community-page .community-topbar nav{gap:clamp(10px,1.8vw,22px)}
+.community-page .community-language-picker{display:inline-flex;align-items:center;gap:6px;position:relative;padding:7px 10px;border:1px solid #dce7d5;border-radius:10px;background:#f7faf4;color:#426547;white-space:nowrap}
+.community-page .community-language-picker>span:first-child{font-size:14px}
+.community-page .community-language-picker select{appearance:none;border:0;outline:0;background:transparent;color:#315f3d;font:700 12px 'DM Sans',sans-serif;cursor:pointer;padding:0 13px 0 0;max-width:95px}
+.community-page .community-language-picker select option{background:#fff;color:#263d2b}
+.community-page .community-language-chevron{position:absolute;right:9px;pointer-events:none;font-size:13px;color:#6e8668}
+@media(max-width:540px){
+ .community-page .community-topbar{flex-wrap:wrap;gap:10px}
+ .community-page .community-topbar nav{width:100%;justify-content:space-between;gap:8px}
+ .community-page .community-topbar nav a{font-size:12px}
+ .community-page .community-language-picker{padding:6px 9px}
+ .community-page .community-language-picker select{font-size:11px;max-width:85px}
+}
