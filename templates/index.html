@@ -16,11 +16,11 @@
 <section class="crop-select-section" aria-label="{% if lang == 'hi' %}फसल चुनें{% elif lang == 'mr' %}पीक निवडा{% else %}Choose a crop{% endif %}">
 <fieldset class="crop-picker-wrap"><legend class="visually-hidden">{% if lang == 'hi' %}फसल चुनें{% elif lang == 'mr' %}पीक निवडा{% else %}Choose a crop{% endif %}</legend>
 <div class="crop-choice-list" role="radiogroup" aria-label="{% if lang == 'hi' %}फसल चुनें{% elif lang == 'mr' %}पीक निवडा{% else %}Choose a crop{% endif %}">
-{% for key, label in crop_options %}
+{% for key, label in crop_options %}{% if key != 'auto' %}
 <label class="crop-choice{% if crop_choice == key %} is-selected{% endif %}" for="crop-choice-{{ loop.index }}">
 <input id="crop-choice-{{ loop.index }}" type="radio" name="crop" form="upload-form" value="{{ key }}" {% if crop_choice == key %}checked{% endif %}>
 <span class="crop-choice-image"><span class="crop-logo" aria-hidden="true">{% if key == 'auto' %}🌿{% elif key == 'Tomato' %}🍅{% elif key == 'Strawberry' %}🍓{% elif key == 'Wheat' %}🌾{% elif key == 'Corn_(maize)' %}🌽{% elif key == 'Potato' %}🥔{% elif key == 'Apple' %}🍎{% elif key == 'Cherry_(including_sour)' %}🍒{% elif key == 'Grape' %}🍇{% elif key == 'Orange' %}🍊{% elif key == 'Peach' %}🍑{% elif key == 'Pepper,_bell' %}🫑{% elif key == 'Soybean' %}🫘{% elif key == 'Tur' %}🌱{% elif key == 'Cotton' %}🌼{% elif key == 'Squash' %}🎃{% else %}🌱{% endif %}</span></span><span class="crop-choice-label">{{ label }}</span></label>
-{% endfor %}</div></fieldset></section>
+{% endif %}{% endfor %}</div></fieldset></section>
 {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="messages">{% for category, message in messages %}<div class="alert {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}
 
 <section class="scan-grid">
