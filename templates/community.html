@@ -10,7 +10,7 @@
 <header class="community-topbar">
 <a class="community-home" href="/?lang={{ lang }}"><span class="community-home-mark" aria-hidden="true">🌿</span><span>Agri<span class="brand-light">Sage</span></span></a>
 <nav><a href="/?lang={{ lang }}">{% if lang == 'hi' %}होम{% elif lang == 'mr' %}मुख्यपृष्ठ{% else %}Home{% endif %}</a><a href="/library?lang={{ lang }}">{% if lang == 'hi' %}फसल गाइड{% elif lang == 'mr' %}पीक मार्गदर्शिका{% else %}Crop Health Guide{% endif %}</a>
-<a href="/community?lang=en">English</a><a href="/community?lang=hi">हिन्दी</a><a href="/community?lang=mr">मराठी</a></nav>
+<label class="community-language-picker" aria-label="Choose language"><span aria-hidden="true">文</span><select aria-label="Choose language" onchange="window.location.href='/community?lang='+this.value"><option value="en" {% if lang == 'en' %}selected{% endif %}>English</option><option value="hi" {% if lang == 'hi' %}selected{% endif %}>हिन्दी</option><option value="mr" {% if lang == 'mr' %}selected{% endif %}>मराठी</option></select><span class="community-language-chevron" aria-hidden="true">⌄</span></label></nav>
 </header>
 <main class="community-page-main">
 <section class="community-hero"><div class="community-hero-copy">
