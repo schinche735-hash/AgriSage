@@ -129,6 +129,19 @@
   <span><span class="team-bullet" aria-hidden="true">•</span>Shantanu Kishor Thakare</span>
   <span><span class="team-bullet" aria-hidden="true">•</span>Meher Bhimrao Kharabe</span>
 </footer>
+<button class="community-launcher" id="community-launcher" type="button" aria-haspopup="dialog" aria-controls="community-notice">
+  <span aria-hidden="true">♧</span>
+  {% if lang == 'hi' %}समुदाय{% elif lang == 'mr' %}समुदाय{% else %}Community{% endif %}
+</button>
+<div class="feedback-backdrop" id="community-notice" role="dialog" aria-modal="true" aria-labelledby="community-title" hidden>
+  <section class="feedback-notice-card">
+    <button class="feedback-close" id="community-close" type="button" aria-label="{% if lang == 'hi' %}बंद करें{% elif lang == 'mr' %}बंद करा{% else %}Close{% endif %}">×</button>
+    <span class="feedback-notice-icon" aria-hidden="true">♧</span>
+    <h2 id="community-title">{% if lang == 'hi' %}कम्युनिटी सुविधा विकसित हो रही है{% elif lang == 'mr' %}कम्युनिटी सुविधा विकसित होत आहे{% else %}Community is under development{% endif %}</h2>
+    <p>{% if lang == 'hi' %}हम किसानों के लिए एक समुदाय बना रहे हैं जहाँ वे फसल की तस्वीरें साझा कर सकेंगे और एक-दूसरे की मदद कर सकेंगे। पोस्ट करने और जवाब देने के लिए लॉगिन की सुविधा भी विकसित की जाएगी।{% elif lang == 'mr' %}आम्ही शेतकऱ्यांसाठी असे समुदाय तयार करत आहोत जिथे ते पिकांचे फोटो शेअर करून एकमेकांना मदत करू शकतील. पोस्ट आणि उत्तरांसाठी लॉगिनची सुविधाही विकसित केली जाईल.{% else %}We’re building a space where farmers can share crop photos, ask questions, and help each other. Sign-in will be required to post or reply, and that feature is being developed too.{% endif %}</p>
+    <button class="feedback-ok" id="community-ok" type="button">{% if lang == 'hi' %}ठीक है{% elif lang == 'mr' %}ठीक आहे{% else %}Got it{% endif %}</button>
+  </section>
+</div>
 <button class="feedback-launcher" id="feedback-launcher" type="button" aria-haspopup="dialog" aria-controls="feedback-notice">
   <span aria-hidden="true">✉</span>
   {% if lang == 'hi' %}फ़ीडबैक{% elif lang == 'mr' %}अभिप्राय{% else %}Feedback{% endif %}
@@ -205,6 +218,18 @@ input.addEventListener('change',()=>showFile(input.files[0]));zone.addEventListe
     button.disabled=false;button.removeAttribute('aria-busy');button.innerHTML=originalButton;
   }
 });
+
+const communityLauncher=document.getElementById('community-launcher');
+const communityNotice=document.getElementById('community-notice');
+const communityClose=document.getElementById('community-close');
+const communityOk=document.getElementById('community-ok');
+function closeCommunityNotice(){communityNotice.hidden=true;communityLauncher.focus();}
+function openCommunityNotice(){communityNotice.hidden=false;communityClose.focus();}
+communityLauncher.addEventListener('click',openCommunityNotice);
+communityClose.addEventListener('click',closeCommunityNotice);
+communityOk.addEventListener('click',closeCommunityNotice);
+communityNotice.addEventListener('click',event=>{if(event.target===communityNotice)closeCommunityNotice();});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!communityNotice.hidden)closeCommunityNotice();});
 
 const feedbackLauncher=document.getElementById('feedback-launcher');
 const feedbackNotice=document.getElementById('feedback-notice');
