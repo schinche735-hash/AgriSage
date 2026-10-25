@@ -205,4 +205,16 @@ input.addEventListener('change',()=>showFile(input.files[0]));zone.addEventListe
     button.disabled=false;button.removeAttribute('aria-busy');button.innerHTML=originalButton;
   }
 });
+
+const feedbackLauncher=document.getElementById('feedback-launcher');
+const feedbackNotice=document.getElementById('feedback-notice');
+const feedbackClose=document.getElementById('feedback-close');
+const feedbackOk=document.getElementById('feedback-ok');
+function closeFeedbackNotice(){feedbackNotice.hidden=true;feedbackLauncher.focus();}
+function openFeedbackNotice(){feedbackNotice.hidden=false;feedbackClose.focus();}
+feedbackLauncher.addEventListener('click',openFeedbackNotice);
+feedbackClose.addEventListener('click',closeFeedbackNotice);
+feedbackOk.addEventListener('click',closeFeedbackNotice);
+feedbackNotice.addEventListener('click',event=>{if(event.target===feedbackNotice)closeFeedbackNotice();});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!feedbackNotice.hidden)closeFeedbackNotice();});
 </script>
