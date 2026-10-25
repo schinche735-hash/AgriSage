@@ -1,0 +1,17 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "AgriSage: Setup and run (Windows)",
+      "type": "shell",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${workspaceFolder}\\setup.ps1\"",
+      "windows": { "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${workspaceFolder}\\setup.ps1\"" },
+      "linux": { "command": "bash \"${workspaceFolder}/setup.sh\"" },
+      "osx": { "command": "bash \"${workspaceFolder}/setup.sh\"" },
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": false },
+      "problemMatcher": []
+    }
+  ]
+}

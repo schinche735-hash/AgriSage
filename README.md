@@ -1,34 +1,51 @@
-# Smart Crop Disease Detection
+# AgriSage — Smart Crop Disease Detection
 
-A local, CPU-based crop disease screening web app with English, Hindi and Marathi interface, a trained MobileNetV2 model, disease reference images, a disease knowledge library, and optional Gemini-generated guidance.
+AgriSage is a local web application for preliminary crop-leaf disease screening. It includes a trained image-classification model, disease reference images and guidance, English/Hindi/Marathi interface support, and optional Gemini-powered image review and guidance.
 
-## Run with Docker (recommended)
+## Quick setup (no Docker required)
 
-**Target:** Linux with Docker Engine and Docker Compose. Extract the ZIP, open a terminal in the project folder, and run `docker compose up --build -d`. Then open **http://127.0.0.1:5000**. Check status with `docker compose ps`; view logs with `docker compose logs -f smart-crop-disease`; stop with `docker compose down`. The trained model and labels are supplied in `models/` and mounted into the container.
+### Windows
 
-## Alternative: run from VS Code
+1. Install **Python 3.11 or 3.12** from [python.org](https://www.python.org/downloads/). During installation, enable **Add Python to PATH**.
+2. Install [Visual Studio Code](https://code.visualstudio.com/) and the Microsoft Python extension.
+3. Open this repository folder in VS Code.
+4. Open **Terminal → New Terminal** and run:
 
-Open the extracted folder in VS Code and press **Ctrl+Shift+B**, then select **Smart Crop: Run (automatic setup)** if prompted. The launcher creates a private `.venv`, installs `requirements.txt`, and creates `.env` from `.env.example`. Open **http://127.0.0.1:5000** and stop the task with **Ctrl+C**. Python 3.11 or 3.12 is required for this alternative.
+   ```powershell
+   powershell -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1
+   ```
 
-## Gemini API and independent image review
+The first run creates a private `.venv`, installs the required Python packages, and creates `.env` from `.env.example`. It may take several minutes and needs an internet connection. Later runs reuse the installed environment.
 
-The app uses Gemini Vision to independently review the actual uploaded photo against the classifier's proposed crop/disease. A model score—even a high one—is not treated as proof. If the reviewer disagrees, is uncertain, or cannot run, the app labels the result **not confirmed** and withholds disease-specific guidance. This second opinion is a safeguard, not ground truth; AI can also make mistakes.
+### Linux / macOS
 
-Set `GEMINI_API_KEY` in your private `.env` file and ensure Gemini API quota is available. The key is excluded from the ZIP. `GEMINI_VISION_MODEL` optionally overrides the vision model (defaults to `gemini-3.1-flash-lite`). When the key is missing or the review fails, predictions remain unverified instead of being presented as confirmed diagnoses.
+Install Python 3.11 or 3.12, open the project folder in VS Code, then run in its terminal:
+
+```bash
+bash ./setup.sh
+```
+
+When the server starts, open **http://127.0.0.1:5000** in your browser. Press **Ctrl+C** in the terminal to stop it. You can start it again using the same command.
+
+## Optional Gemini setup
+
+The app can use Gemini for independent image review and extra disease guidance. It also has built-in guidance for offline fallback. To enable Gemini, open the local `.env` file created on first run and set `GEMINI_API_KEY` to your own key. Keep `.env` private: it is ignored by Git and must never be committed or shared. Gemini usage depends on API availability and quota.
 
 ## What is included
 
-- Flask app and templates
-- Active 43-class MobileNetV2 model and matching labels (38 PlantVillage classes plus 5 cotton classes)
-- Gemini Vision second-opinion check; conflicting/unavailable reviews withhold disease-specific guidance
-- Docker Compose deployment and health check
-- Disease reference gallery and UI styles
-- Automatic first-run launcher and VS Code task
-- Offline fallback guidance and SQLite cache
-- Evaluation and reference documents
+- Flask web application, templates, and static assets
+- Trained model and matching label files required for inference
+- Disease reference gallery and offline guidance
+- First-run setup scripts for Windows, Linux, and macOS
+- Optional Gemini configuration example
+- Render deployment configuration
 
-Training notebooks, raw datasets, experimental candidate models, temporary uploads, prediction-history databases, virtual environments, and secrets are excluded from the clean runtime package.
+Training datasets, temporary uploads, local databases, virtual environments, and secret keys are not included.
 
-## Model limitations
+## Important limitations
 
-The model predicts from its trained classes; it can misclassify field photos. Treat the result as preliminary screening, not a confirmed diagnosis. Confirm important decisions with a local KVK/agriculture officer. See `MODEL_EVALUATION.md` for evaluation results and limitations.
+Predictions are preliminary screening, not a guaranteed diagnosis. The classifier can make mistakes, especially on field photos or unfamiliar conditions. Confirm important crop-treatment decisions with a local KVK or agriculture officer.
+
+## Project deployment
+
+The hosted demo is deployed separately on Render. Local setup does not change the hosted website. See the Render dashboard available to the project owner for deployment settings.
