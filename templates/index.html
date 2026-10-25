@@ -19,25 +19,7 @@
 {% for key, label in crop_options %}
 <label class="crop-choice{% if crop_choice == key %} is-selected{% endif %}" for="crop-choice-{{ loop.index }}">
 <input id="crop-choice-{{ loop.index }}" type="radio" name="crop" form="upload-form" value="{{ key }}" {% if crop_choice == key %}checked{% endif %}>
-<span class="crop-choice-image">
-{% if key == 'auto' %}<span class="crop-auto-icon" aria-hidden="true">🌿</span>
-{% elif key == 'Corn_(maize)' %}<img src="{{ url_for('static', filename='crop_images/corn.jpg') }}" alt="" loading="lazy">
-{% elif key == 'Potato' %}<img src="{{ url_for('static', filename='crop_images/potato.jpg') }}" alt="" loading="lazy">
-{% elif key == 'Tomato' %}<img src="{{ url_for('static', filename='crop_images/tomato.jpg') }}" alt="" loading="lazy">
-{% elif key == 'Apple' %}<img src="{{ url_for('static', filename='crop_images/apple.jpg') }}" alt="" loading="lazy">
-{% elif key == 'Cherry_(including_sour)' %}<img src="{{ url_for('static', filename='crop_images/cherry.jpg') }}" alt="" loading="lazy">
-{% elif key == 'Grape' %}<img src="{{ url_for('static', filename='crop_images/grape.jpg') }}" alt="" loading="lazy">
-{% elif key == 'Orange' %}<img src="{{ url_for('static', filename='crop_images/orange.jpg') }}" alt="" loading="lazy">
-{% elif key == 'Peach' %}<img src="{{ url_for('static', filename='crop_images/peach.jpg') }}" alt="" loading="lazy">
-{% elif key == 'Pepper,_bell' %}<img src="{{ url_for('static', filename='crop_images/pepper.jpg') }}" alt="" loading="lazy">
-{% elif key == 'Soybean' %}<img src="{{ url_for('static', filename='crop_images/soybean.jpg') }}" alt="" loading="lazy">
-{% elif key == 'Wheat' %}<img src="{{ url_for('static', filename='crop_images/wheat.jpg') }}" alt="" loading="lazy">
-{% elif key == 'Tur' %}<img src="{{ url_for('static', filename='crop_images/tur.jpg') }}" alt="" loading="lazy">
-{% elif key == 'Cotton' %}<img src="{{ url_for('static', filename='crop_images/cotton.jpg') }}" alt="" loading="lazy">
-{% elif key == 'Squash' %}<img src="{{ url_for('static', filename='crop_images/squash.jpg') }}" alt="" loading="lazy">
-{% elif key == 'Strawberry' %}<img src="{{ url_for('static', filename='crop_images/strawberry.jpg') }}" alt="" loading="lazy">
-{% else %}<span class="crop-auto-icon" aria-hidden="true">🌱</span>{% endif %}
-</span><span class="crop-choice-label">{{ label }}</span></label>
+<span class="crop-choice-image"><span class="crop-logo" aria-hidden="true">{% if key == 'auto' %}🌿{% elif key == 'Tomato' %}🍅{% elif key == 'Strawberry' %}🍓{% elif key == 'Wheat' %}🌾{% elif key == 'Corn_(maize)' %}🌽{% elif key == 'Potato' %}🥔{% elif key == 'Apple' %}🍎{% elif key == 'Cherry_(including_sour)' %}🍒{% elif key == 'Grape' %}🍇{% elif key == 'Orange' %}🍊{% elif key == 'Peach' %}🍑{% elif key == 'Pepper,_bell' %}🫑{% elif key == 'Soybean' %}🫘{% elif key == 'Tur' %}🌱{% elif key == 'Cotton' %}🌼{% elif key == 'Squash' %}🎃{% else %}🌱{% endif %}</span></span><span class="crop-choice-label">{{ label }}</span></label>
 {% endfor %}</div></fieldset></section>
 {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="messages">{% for category, message in messages %}<div class="alert {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}
 
