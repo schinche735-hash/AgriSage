@@ -133,15 +133,37 @@
   <span aria-hidden="true">♧</span>
   {% if lang == 'hi' %}समुदाय{% elif lang == 'mr' %}समुदाय{% else %}Community{% endif %}
 </button>
-<div class="feedback-backdrop" id="community-notice" role="dialog" aria-modal="true" aria-labelledby="community-title" hidden>
-  <section class="feedback-notice-card">
+<div class="feedback-backdrop community-backdrop" id="community-notice" role="dialog" aria-modal="true" aria-labelledby="community-title" hidden>
+  <section class="community-preview">
     <button class="feedback-close" id="community-close" type="button" aria-label="{% if lang == 'hi' %}बंद करें{% elif lang == 'mr' %}बंद करा{% else %}Close{% endif %}">×</button>
-    <span class="feedback-notice-icon" aria-hidden="true">♧</span>
-    <h2 id="community-title">{% if lang == 'hi' %}कम्युनिटी सुविधा विकसित हो रही है{% elif lang == 'mr' %}कम्युनिटी सुविधा विकसित होत आहे{% else %}Community is under development{% endif %}</h2>
-    <p>{% if lang == 'hi' %}हम किसानों के लिए एक समुदाय बना रहे हैं जहाँ वे फसल की तस्वीरें साझा कर सकेंगे और एक-दूसरे की मदद कर सकेंगे। पोस्ट करने और जवाब देने के लिए लॉगिन की सुविधा भी विकसित की जाएगी।{% elif lang == 'mr' %}आम्ही शेतकऱ्यांसाठी असे समुदाय तयार करत आहोत जिथे ते पिकांचे फोटो शेअर करून एकमेकांना मदत करू शकतील. पोस्ट आणि उत्तरांसाठी लॉगिनची सुविधाही विकसित केली जाईल.{% else %}We’re building a space where farmers can share crop photos, ask questions, and help each other. Sign-in will be required to post or reply, and that feature is being developed too.{% endif %}</p>
-    <button class="feedback-ok" id="community-ok" type="button">{% if lang == 'hi' %}ठीक है{% elif lang == 'mr' %}ठीक आहे{% else %}Got it{% endif %}</button>
+    <header class="community-preview-header">
+      <span class="community-mark" aria-hidden="true">♧</span>
+      <div><p class="community-eyebrow">{% if lang == 'hi' %}किसानों से, किसानों के लिए{% elif lang == 'mr' %}शेतकऱ्यांसाठी, शेतकऱ्यांकडून{% else %}GROW TOGETHER{% endif %}</p>
+      <h2 id="community-title">{% if lang == 'hi' %}किसान समुदाय{% elif lang == 'mr' %}शेतकरी समुदाय{% else %}Farmer Community{% endif %}</h2>
+      <p>{% if lang == 'hi' %}फसल की समस्याएँ साझा करें और एक-दूसरे से सीखें।{% elif lang == 'mr' %}पिकांच्या समस्या शेअर करा आणि एकमेकांकडून शिका.{% else %}Share crop problems, exchange knowledge, and learn from other farmers.{% endif %}</p></div>
+    </header>
+    <div class="community-preview-toolbar">
+      <span>{% if lang == 'hi' %}समुदाय फ़ीड{% elif lang == 'mr' %}समुदाय पोस्ट{% else %}Community feed{% endif %}</span>
+      <span class="community-preview-badge">{% if lang == 'hi' %}पूर्वावलोकन{% elif lang == 'mr' %}पूर्वावलोकन{% else %}PREVIEW{% endif %}</span>
+    </div>
+    <div class="community-demo-posts">
+      <article class="community-demo-post">
+        <div class="community-post-top"><span class="community-avatar avatar-green">RK</span><div><strong>Ramesh K.</strong><small>{% if lang == 'hi' %}सोयाबीन किसान{% elif lang == 'mr' %}सोयाबीन शेतकरी{% else %}Soybean farmer{% endif %}</small></div><span class="community-crop-tag">Soybean</span></div>
+        <p>{% if lang == 'hi' %}मेरी सोयाबीन की पत्तियों पर पीले धब्बे दिख रहे हैं। क्या किसी को इसका कारण पता है?{% elif lang == 'mr' %}माझ्या सोयाबीनच्या पानांवर पिवळे डाग दिसत आहेत. याचे कारण कोणाला माहीत आहे का?{% else %}Yellow spots are appearing on my soybean leaves. Has anyone seen this before?{% endif %}</p>
+        <div class="community-post-meta"><span>♡ 12</span><span>◯ 4 {% if lang == 'hi' %}जवाब{% elif lang == 'mr' %}उत्तरे{% else %}replies{% endif %}</span></div>
+      </article>
+      <article class="community-demo-post">
+        <div class="community-post-top"><span class="community-avatar avatar-gold">SP</span><div><strong>Sunita P.</strong><small>{% if lang == 'hi' %}कपास किसान{% elif lang == 'mr' %}कापूस शेतकरी{% else %}Cotton farmer{% endif %}</small></div><span class="community-crop-tag">Cotton</span></div>
+        <p>{% if lang == 'hi' %}कपास के पौधों की पत्तियाँ मुड़ रही हैं। मुझे किन बातों की जाँच करनी चाहिए?{% elif lang == 'mr' %}कापसाच्या झाडांची पाने वाकडी होत आहेत. मी काय तपासावे?{% else %}My cotton plant leaves are curling. What should I check first?{% endif %}</p>
+        <div class="community-post-meta"><span>♡ 8</span><span>◯ 3 {% if lang == 'hi' %}जवाब{% elif lang == 'mr' %}उत्तरे{% else %}replies{% endif %}</span></div>
+      </article>
+    </div>
+    <div class="community-preview-compose"><span aria-hidden="true">＋</span><div><strong>{% if lang == 'hi' %}अपना सवाल साझा करें{% elif lang == 'mr' %}तुमचा प्रश्न शेअर करा{% else %}Share your own question{% endif %}</strong><small>{% if lang == 'hi' %}पोस्ट करने के लिए लॉगिन आवश्यक होगा{% elif lang == 'mr' %}पोस्ट करण्यासाठी लॉगिन आवश्यक असेल{% else %}Sign-in will be required to post or reply{% endif %}</small></div><button type="button" disabled>{% if lang == 'hi' %}जल्द{% elif lang == 'mr' %}लवकरच{% else %}Soon{% endif %}</button></div>
+    <p class="community-preview-note">{% if lang == 'hi' %}यह एक नमूना पूर्वावलोकन है। पोस्ट और लॉगिन अभी उपलब्ध नहीं हैं।{% elif lang == 'mr' %}हे नमुना पूर्वावलोकन आहे. पोस्ट आणि लॉगिन अद्याप उपलब्ध नाहीत.{% else %}This is a sample preview. Posts, replies, and sign-in are not active yet.{% endif %}</p>
+    <button class="feedback-ok" id="community-ok" type="button">{% if lang == 'hi' %}बंद करें{% elif lang == 'mr' %}बंद करा{% else %}Close preview{% endif %}</button>
   </section>
 </div>
+
 <button class="feedback-launcher" id="feedback-launcher" type="button" aria-haspopup="dialog" aria-controls="feedback-notice">
   <span aria-hidden="true">✉</span>
   {% if lang == 'hi' %}फ़ीडबैक{% elif lang == 'mr' %}अभिप्राय{% else %}Feedback{% endif %}
