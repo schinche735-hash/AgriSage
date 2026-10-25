@@ -561,3 +561,50 @@ footer.team-credit>span:first-child{font-weight:400;letter-spacing:0;color:inher
 @media(max-width:760px){.crop-select-section{margin-bottom:20px}.crop-choice-list{gap:14px;padding:9px 2px 15px}.crop-choice{flex-basis:82px;gap:7px}.crop-choice-image{width:72px;height:72px;border-width:2px}.crop-choice-label{font-size:13px}.crop-auto-icon{font-size:28px}.crop-logo{font-size:32px}}
 @media(max-width:420px){.crop-choice-list{gap:12px}.crop-choice{flex-basis:70px}.crop-choice-image{width:62px;height:62px}.crop-choice-label{font-size:12px}.crop-logo{font-size:27px}}
 @media(prefers-reduced-motion:reduce){.crop-choice,.crop-choice-image{transition:none}}
+
+
+/* Fit every crop choice in one visible row without horizontal scrolling. */
+.crop-choice-list{
+  display:flex;
+  flex-wrap:nowrap;
+  justify-content:space-between;
+  gap:clamp(2px,0.55vw,8px);
+  overflow:hidden;
+  padding:10px 0 14px;
+  scrollbar-width:none;
+}
+.crop-choice-list::-webkit-scrollbar{display:none}
+.crop-choice{
+  flex:1 1 0;
+  width:0;
+  min-width:0;
+  gap:6px;
+}
+.crop-choice-image{
+  width:min(100%,58px);
+  height:auto;
+  aspect-ratio:1;
+  flex:none;
+}
+.crop-logo{font-size:clamp(14px,2.7vw,30px)}
+.crop-choice-label{
+  width:100%;
+  font-size:clamp(8px,0.9vw,11px);
+  line-height:1.15;
+  overflow-wrap:anywhere;
+  hyphens:auto;
+}
+@media(max-width:760px){
+  .crop-select-section{margin-bottom:14px}
+  .crop-choice-list{gap:2px;padding:8px 0 12px}
+  .crop-choice{gap:4px}
+  .crop-choice-image{width:min(100%,42px);border-width:1.5px}
+  .crop-logo{font-size:clamp(11px,3.8vw,22px)}
+  .crop-choice-label{font-size:clamp(6px,1.8vw,9px);letter-spacing:-.15px}
+}
+@media(max-width:380px){
+  .crop-choice-list{gap:1px}
+  .crop-choice-image{width:min(100%,32px)}
+  .crop-logo{font-size:clamp(9px,3.3vw,16px)}
+  .crop-choice-label{font-size:6px;line-height:1.05}
+}
