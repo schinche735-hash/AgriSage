@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="{{ 'hi' if lang == 'hi' else 'mr' if lang == 'mr' else 'en' }}">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% if lang == 'hi' %}किसान समुदाय | AgriSage{% elif lang == 'mr' %}शेतकरी समुदाय | AgriSage{% else %}Farmer Community | AgriSage{% endif %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='language.css') }}">
+</head>
+<body class="community-page">
+<header class="community-topbar">
+<a class="community-home" href="/?lang={{ lang }}"><span class="community-home-mark" aria-hidden="true">🌿</span><span>Agri<span class="brand-light">Sage</span></span></a>
+<nav><a href="/?lang={{ lang }}">{% if lang == 'hi' %}होम{% elif lang == 'mr' %}मुख्यपृष्ठ{% else %}Home{% endif %}</a><a href="/library?lang={{ lang }}">{% if lang == 'hi' %}फसल गाइड{% elif lang == 'mr' %}पीक मार्गदर्शिका{% else %}Crop Health Guide{% endif %}</a>
+<a href="/community?lang=en">English</a><a href="/community?lang=hi">हिन्दी</a><a href="/community?lang=mr">मराठी</a></nav>
+</header>
+<main class="community-page-main">
+<section class="community-hero"><div class="community-hero-copy">
+<p class="community-eyebrow">{% if lang == 'hi' %}किसानों का साझा मंच{% elif lang == 'mr' %}शेतकऱ्यांसाठी एकत्रित व्यासपीठ{% else %}GROW TOGETHER · FARMER TO FARMER{% endif %}</p>
+<h1>{% if lang == 'hi' %}किसान समुदाय{% elif lang == 'mr' %}शेतकरी समुदाय{% else %}The Farmer Community{% endif %}</h1>
+<p>{% if lang == 'hi' %}फसल की तस्वीरें साझा करें, सवाल पूछें और दूसरे किसानों के अनुभवों से सीखें।{% elif lang == 'mr' %}पिकांचे फोटो शेअर करा, प्रश्न विचारा आणि इतर शेतकऱ्यांच्या अनुभवांतून शिका.{% else %}Share crop photos, ask questions, and learn from the experience of farmers growing alongside you.{% endif %}</p>
+</div><div class="community-hero-art" aria-hidden="true">🌱</div></section>
+<div class="community-layout">
+<section class="community-feed-column">
+<div class="community-feed-toolbar"><h2>{% if lang == 'hi' %}हाल की चर्चाएँ{% elif lang == 'mr' %}अलीकडील चर्चा{% else %}Recent discussions{% endif %}</h2><span class="community-preview-badge">{% if lang == 'hi' %}डेमो पूर्वावलोकन{% elif lang == 'mr' %}डेमो पूर्वावलोकन{% else %}PREVIEW FEED{% endif %}</span></div>
+<div class="community-search"><span aria-hidden="true">⌕</span><span>{% if lang == 'hi' %}फसल, समस्या या सवाल खोजें{% elif lang == 'mr' %}पीक, समस्या किंवा प्रश्न शोधा{% else %}Search crops, problems, or questions{% endif %}</span></div>
+<article class="community-demo-post">
+<div class="community-post-top"><span class="community-avatar avatar-green">RK</span><div><strong>Ramesh K.</strong><small>{% if lang == 'hi' %}सोयाबीन किसान · 2 घंटे पहले{% elif lang == 'mr' %}सोयाबीन शेतकरी · २ तासांपूर्वी{% else %}Soybean farmer · 2 hours ago{% endif %}</small></div><span class="community-crop-tag">Soybean</span></div>
+<p>{% if lang == 'hi' %}मेरी सोयाबीन की पत्तियों पर पीले धब्बे दिख रहे हैं। क्या किसी को इसका कारण पता है?{% elif lang == 'mr' %}माझ्या सोयाबीनच्या पानांवर पिवळे डाग दिसत आहेत. याचे कारण कोणाला माहीत आहे का?{% else %}Yellow spots are appearing on my soybean leaves. Has anyone seen this before?{% endif %}</p>
+<img class="community-post-photo" src="{{ url_for('static', filename='disease_images/plantvillage_cotton_alternaria_leaf_spot.jpg') }}" alt="{% if lang == 'hi' %}पत्तियों पर धब्बों का उदाहरण फोटो{% elif lang == 'mr' %}पानांवरील डागांचा नमुना फोटो{% else %}Example photo of spotted crop leaves{% endif %}">
+<div class="community-post-meta"><span>♡ 12 {% if lang == 'hi' %}पसंद{% elif lang == 'mr' %}आवडी{% else %}likes{% endif %}</span><span>◯ 4 {% if lang == 'hi' %}जवाब{% elif lang == 'mr' %}उत्तरे{% else %}replies{% endif %}</span></div>
+<div class="community-post-reply"><strong>{% if lang == 'hi' %}किसान की प्रतिक्रिया{% elif lang == 'mr' %}शेतकऱ्याचे उत्तर{% else %}Farmer reply{% endif %}:</strong> {% if lang == 'hi' %}पत्तियों के नीचे भी देखें और धब्बों की तस्वीर साझा करें।{% elif lang == 'mr' %}पानांच्या खालच्या बाजूला देखील तपासा आणि डागांचा फोटो शेअर करा.{% else %}Check the underside of the leaves too, and share a close-up of the spots.{% endif %}</div>
+</article>
+<article class="community-demo-post">
+<div class="community-post-top"><span class="community-avatar avatar-gold">SP</span><div><strong>Sunita P.</strong><small>{% if lang == 'hi' %}कपास किसान · कल{% elif lang == 'mr' %}कापूस शेतकरी · काल{% else %}Cotton farmer · Yesterday{% endif %}</small></div><span class="community-crop-tag">Cotton</span></div>
+<p>{% if lang == 'hi' %}कपास के पौधों की पत्तियाँ मुड़ रही हैं। मुझे किन बातों की जाँच करनी चाहिए?{% elif lang == 'mr' %}कापसाच्या झाडांची पाने वाकडी होत आहेत. मी काय तपासावे?{% else %}My cotton plant leaves are curling. What should I check first?{% endif %}</p>
+<img class="community-post-photo" src="{{ url_for('static', filename='disease_images/plantvillage_cotton_bacterial_blight.jpg') }}" alt="{% if lang == 'hi' %}कपास की पत्तियों का उदाहरण फोटो{% elif lang == 'mr' %}कापसाच्या पानांचा नमुना फोटो{% else %}Example photo of cotton leaves{% endif %}">
+<div class="community-post-meta"><span>♡ 8 {% if lang == 'hi' %}पसंद{% elif lang == 'mr' %}आवडी{% else %}likes{% endif %}</span><span>◯ 3 {% if lang == 'hi' %}जवाब{% elif lang == 'mr' %}उत्तरे{% else %}replies{% endif %}</span></div>
+<div class="community-post-reply"><strong>{% if lang == 'hi' %}किसान की प्रतिक्रिया{% elif lang == 'mr' %}शेतकऱ्याचे उत्तर{% else %}Farmer reply{% endif %}:</strong> {% if lang == 'hi' %}पानी, कीट और नई पत्तियों की स्थिति भी जाँचें।{% elif lang == 'mr' %}पाणी, कीड आणि नवीन पानांची स्थितीही तपासा.{% else %}Check watering, pests, and whether the newest leaves are affected too.{% endif %}</div>
+</article>
+<div class="community-compose-preview"><span class="compose-plus" aria-hidden="true">＋</span><div><strong>{% if lang == 'hi' %}अपना सवाल साझा करें{% elif lang == 'mr' %}तुमचा प्रश्न शेअर करा{% else %}Share your own question{% endif %}</strong><small>{% if lang == 'hi' %}पोस्ट करने और जवाब देने के लिए लॉगिन आवश्यक होगा।{% elif lang == 'mr' %}पोस्ट करण्यासाठी आणि उत्तर देण्यासाठी लॉगिन आवश्यक असेल.{% else %}Sign-in will be required to post photos or reply.{% endif %}</small></div><button type="button" disabled>{% if lang == 'hi' %}जल्द{% elif lang == 'mr' %}लवकरच{% else %}Coming soon{% endif %}</button></div>
+<p class="community-page-note">{% if lang == 'hi' %}यह उदाहरणों वाला पूर्वावलोकन है। पोस्ट, पसंद, जवाब और लॉगिन अभी सक्रिय नहीं हैं।{% elif lang == 'mr' %}हे नमुना पूर्वावलोकन आहे. पोस्ट, आवडी, उत्तरे आणि लॉगिन सध्या सक्रिय नाहीत.{% else %}This is a sample preview. Posts, likes, replies, and sign-in are not active yet.{% endif %}</p>
+</section>
+<aside class="community-sidebar">
+<section class="community-side-card"><h3>{% if lang == 'hi' %}समुदाय में शामिल हों{% elif lang == 'mr' %}समुदायात सहभागी व्हा{% else %}Be part of the community{% endif %}</h3><p>{% if lang == 'hi' %}अपनी फसल की समस्याओं पर चर्चा करें और स्थानीय अनुभव साझा करें।{% elif lang == 'mr' %}पिकांच्या समस्यांवर चर्चा करा आणि स्थानिक अनुभव शेअर करा.{% else %}Discuss crop problems and share local growing experience with other farmers.{% endif %}</p><div class="community-compose-preview"><span class="compose-plus">＋</span><div><strong>{% if lang == 'hi' %}पोस्ट बनाएँ{% elif lang == 'mr' %}पोस्ट तयार करा{% else %}Create a post{% endif %}</strong><small>{% if lang == 'hi' %}लॉगिन सुविधा जल्द आएगी{% elif lang == 'mr' %}लॉगिन सुविधा लवकरच येईल{% else %}Login is coming later{% endif %}</small></div></div></section>
+<section class="community-side-card"><h3>{% if lang == 'hi' %}लोकप्रिय फसलें{% elif lang == 'mr' %}लोकप्रिय पिके{% else %}Popular crops{% endif %}</h3><div class="community-topic-list"><div class="community-topic"><span>🌱 Soybean</span><small>12</small></div><div class="community-topic"><span>☁️ Cotton</span><small>8</small></div><div class="community-topic"><span>🌽 Corn</span><small>6</small></div><div class="community-topic"><span>🍅 Tomato</span><small>5</small></div></div></section>
+<section class="community-side-card"><h3>{% if lang == 'hi' %}सुरक्षित साझा करना{% elif lang == 'mr' %}सुरक्षित शेअरिंग{% else %}A helpful space{% endif %}</h3><p>{% if lang == 'hi' %}फोटो और सवाल साझा करें, लेकिन फसल पर कोई उपाय करने से पहले जानकारी की पुष्टि करें।{% elif lang == 'mr' %}फोटो आणि प्रश्न शेअर करा; कोणताही उपाय करण्यापूर्वी माहितीची खात्री करा.{% else %}Share photos and questions, and verify advice before applying a treatment to your crop.{% endif %}</p></section>
+</aside>
+</div>
+</main>
+</body>
+</html>
