@@ -718,3 +718,14 @@ footer.team-credit>span:first-child{font-weight:400;letter-spacing:0;color:inher
 .community-page .community-home-link{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:10px;background:#eef4e8}
 @media(max-width:800px){.community-layout{grid-template-columns:1fr}.community-sidebar{grid-template-columns:repeat(2,minmax(0,1fr))}.community-sidebar .community-side-card:first-child{grid-column:1/-1}.community-hero-art{flex-basis:105px;width:105px;height:105px;font-size:56px}}
 @media(max-width:540px){.community-page .community-topbar{padding:12px 15px}.community-page .community-topbar nav{gap:10px}.community-page .community-topbar nav a{font-size:11px}.community-page .community-topbar .community-home{font-size:16px}.community-page-main{width:calc(100% - 24px);margin:16px auto 45px}.community-hero{padding:23px 18px;border-radius:18px}.community-hero-art{display:none}.community-hero p{font-size:12px}.community-layout{gap:15px}.community-demo-post{padding:14px}.community-post-photo{height:190px}.community-sidebar{grid-template-columns:1fr}.community-sidebar .community-side-card:first-child{grid-column:auto}.community-feed-toolbar h2{font-size:18px}}
+
+
+/* Keep the floating Community and Feedback controls the same size. */
+.community-launcher,.feedback-launcher{box-sizing:border-box;width:142px;min-height:42px;justify-content:center;padding:11px 12px;white-space:nowrap}
+.community-launcher{bottom:108px}
+.feedback-launcher{bottom:58px}
+@media(max-width:760px){
+ .community-launcher,.feedback-launcher{width:132px;min-height:40px;padding:10px 11px;font-size:11px}
+ .community-launcher{bottom:112px}
+ .feedback-launcher{bottom:62px}
+}
