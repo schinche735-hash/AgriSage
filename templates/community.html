@@ -8,8 +8,8 @@
 </head>
 <body class="community-page">
 <header class="community-topbar">
-<a class="community-home" href="/?lang={{ lang }}"><span class="community-home-mark" aria-hidden="true">🌿</span><span>Agri<span class="brand-light">Sage</span></span></a>
-<nav><a href="/dashboard">Dashboard</a><a href="/?lang={{ lang }}">{% if lang == 'hi' %}होम{% elif lang == 'mr' %}मुख्यपृष्ठ{% else %}Home{% endif %}</a><a href="/library?lang={{ lang }}">{% if lang == 'hi' %}फसल गाइड{% elif lang == 'mr' %}पीक मार्गदर्शिका{% else %}Crop Health Guide{% endif %}</a>
+<a class="community-home" href="{{ request.script_root }}/?lang={{ lang }}"><span class="community-home-mark" aria-hidden="true">🌿</span><span>Agri<span class="brand-light">Sage</span></span></a>
+<nav><a href="{{ url_for('dashboard') }}">Dashboard</a><a href="{{ request.script_root }}/?lang={{ lang }}">{% if lang == 'hi' %}होम{% elif lang == 'mr' %}मुख्यपृष्ठ{% else %}Home{% endif %}</a><a href="{{ url_for('library', lang=lang) }}">{% if lang == 'hi' %}फसल गाइड{% elif lang == 'mr' %}पीक मार्गदर्शिका{% else %}Crop Health Guide{% endif %}</a>
 <div class="language-select-shell community-language-shell" id="language-select-shell"><button class="language-picker-button" id="language-menu-button" type="button" aria-label="{% if lang == 'hi' %}भाषा चुनें{% elif lang == 'mr' %}भाषा निवडा{% else %}Choose language{% endif %}" aria-haspopup="listbox" aria-expanded="false" aria-controls="language-menu"><span id="language-picker-label">{{ {'en':'English','hi':'हिन्दी','mr':'मराठी'}[lang] }}</span></button><div class="language-menu" id="language-menu" role="listbox" aria-labelledby="language-menu-button" hidden>{% for key, label in [('en','English'),('hi','हिन्दी'),('mr','मराठी')] %}<button type="button" class="language-menu-option{% if lang == key %} is-selected{% endif %}" role="option" data-value="{{ key }}" aria-selected="{{ 'true' if lang == key else 'false' }}">{{ label }}</button>{% endfor %}</div></div></nav>
 </header>
 <main class="community-page-main">
@@ -47,7 +47,7 @@ function closeLanguageMenu(){languageMenu.hidden=true;languageButton.setAttribut
 function openLanguageMenu(){languageMenu.hidden=false;languageButton.setAttribute('aria-expanded','true');languageMenu.querySelector('[aria-selected="true"]')?.scrollIntoView({block:'nearest'});}
 languageButton.addEventListener('click',()=>languageMenu.hidden?openLanguageMenu():closeLanguageMenu());
 languageButton.addEventListener('keydown',event=>{if(['ArrowDown','Enter',' '].includes(event.key)){event.preventDefault();openLanguageMenu();languageMenu.querySelector('[aria-selected="true"]')?.focus();}});
-languageMenu.addEventListener('click',event=>{const option=event.target.closest('[data-value]');if(option)location.href='/community?lang='+encodeURIComponent(option.dataset.value);});
+languageMenu.addEventListener('click',event=>{const option=event.target.closest('[data-value]');if(option)location.href='{{ request.script_root }}/community?lang='+encodeURIComponent(option.dataset.value);});
 languageMenu.addEventListener('keydown',event=>{const items=[...languageMenu.querySelectorAll('[role="option"]')],index=items.indexOf(document.activeElement);if(event.key==='Escape'){event.preventDefault();closeLanguageMenu();languageButton.focus();}else if(event.key==='ArrowDown'||event.key==='ArrowUp'){event.preventDefault();items[Math.max(0,Math.min(items.length-1,index+(event.key==='ArrowDown'?1:-1)))]?.focus();}else if(event.key==='Home'||event.key==='End'){event.preventDefault();items[event.key==='Home'?0:items.length-1]?.focus();}else if(event.key==='Enter'||event.key===' '){event.preventDefault();document.activeElement?.click();}});
 document.addEventListener('click',event=>{if(!languageShell.contains(event.target))closeLanguageMenu();});
 </script>
