@@ -72,21 +72,26 @@ class AuthenticationTests(unittest.TestCase):
 
     def test_two_accounts_keep_independent_sessions_in_two_tabs(self):
         client = app.test_client()
-        self.set_csrf(client)
+
+        # Simulate two login tabs opened before either form is submitted.
+        import re
+        first_form = client.get("/login").data
+        second_form = client.get("/login").data
+        first_csrf = re.search(rb'name="_csrf_token" value="([^"]+)"', first_form).group(1).decode("utf-8")
+        second_csrf = re.search(rb'name="_csrf_token" value="([^"]+)"', second_form).group(1).decode("utf-8")
 
         farmer_login = client.post("/login", data={
-            "_csrf_token": "auth-test-csrf",
+            "_csrf_token": first_csrf,
             "email": "farmer@example.com",
             "password": "farmer-password-123",
         })
         self.assertEqual(farmer_login.status_code, 302)
         farmer_workspace = farmer_login.headers["Location"].split("/")[2]
 
-        # A second root login creates a second workspace cookie without
-        # replacing the first workspace's cookie.
-        self.set_csrf(client)
+        # The second already-open login form still works after the first login
+        # removed the old shared root cookie.
         admin_login = client.post("/login", data={
-            "_csrf_token": "auth-test-csrf",
+            "_csrf_token": second_csrf,
             "email": "admin@example.com",
             "password": "admin-password-123",
         })
