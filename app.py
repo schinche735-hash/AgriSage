@@ -32,6 +32,93 @@ app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_SECURE"] = os.environ.get("COOKIE_SECURE", "1" if os.environ.get("RENDER") else "0") == "1"
 
 
+class TabScopedSessionCookieMiddleware:
+    """Give each /w/<workspace>/ URL its own path-scoped Flask session cookie.
+
+    The workspace ID is only a routing context, not an authentication secret.
+    The HttpOnly session cookie remains the authentication credential and is
+    sent only to that workspace path by the browser.
+    """
+    WORKSPACE_PATH = re.compile(r"^/w/([A-Za-z0-9_-]{32,64})(/.*)?$")
+
+    def __init__(self, wrapped_app, flask_app):
+        self.wrapped_app = wrapped_app
+        self.flask_app = flask_app
+
+    def cookie_name(self, workspace_id):
+        prefix = "__Secure-" if self.flask_app.config.get("SESSION_COOKIE_SECURE") else ""
+        return f"{prefix}AgriSage-{workspace_id}"
+
+    @staticmethod
+    def _cookie_pairs(header):
+        pairs = []
+        for part in (header or "").split(";"):
+            if "=" not in part:
+                continue
+            name, value = part.strip().split("=", 1)
+            if name:
+                pairs.append((name, value))
+        return pairs
+
+    def __call__(self, environ, start_response):
+        original_path = environ.get("PATH_INFO", "/")
+        match = self.WORKSPACE_PATH.match(original_path)
+        workspace_id = match.group(1) if match else None
+
+        if workspace_id:
+            prefix = f"/w/{workspace_id}"
+            environ["agrisage_workspace_id"] = workspace_id
+            environ["SCRIPT_NAME"] = environ.get("SCRIPT_NAME", "") + prefix
+            environ["PATH_INFO"] = match.group(2) or "/"
+
+            selected_name = self.cookie_name(workspace_id)
+            selected_value = None
+            filtered = []
+            for name, value in self._cookie_pairs(environ.get("HTTP_COOKIE", "")):
+                if name == selected_name:
+                    selected_value = value
+                elif name == "session" or name.startswith("AgriSage-") or name.startswith("__Secure-AgriSage-"):
+                    continue
+                else:
+                    filtered.append((name, value))
+            if selected_value is not None:
+                filtered.append(("session", selected_value))
+            environ["HTTP_COOKIE"] = "; ".join(f"{name}={value}" for name, value in filtered)
+
+        def wrapped_start_response(status, headers, exc_info=None):
+            new_workspace = environ.get("agrisage_new_workspace_id")
+            target_workspace = workspace_id or new_workspace
+            rewritten = []
+            session_cookie_seen = False
+            for header_name, header_value in headers:
+                if header_name.lower() == "set-cookie" and header_value.lower().startswith("session=") and target_workspace:
+                    session_cookie_seen = True
+                    name = self.cookie_name(target_workspace)
+                    value = re.sub(r"^session=", name + "=", header_value, count=1, flags=re.IGNORECASE)
+                    scoped_path = f"/w/{target_workspace}"
+                    if re.search(r";\\s*path=", value, flags=re.IGNORECASE):
+                        value = re.sub(r";\\s*path=[^;]*", "; Path=" + scoped_path, value, count=1, flags=re.IGNORECASE)
+                    else:
+                        value += "; Path=" + scoped_path
+                    rewritten.append((header_name, value))
+                else:
+                    rewritten.append((header_name, header_value))
+
+            # Remove the old shared root cookie after the first successful
+            # workspace login. Existing workspaces keep their own scoped cookies.
+            if new_workspace and session_cookie_seen:
+                deletion = "session=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax"
+                if self.flask_app.config.get("SESSION_COOKIE_SECURE"):
+                    deletion += "; Secure"
+                rewritten.append(("Set-Cookie", deletion))
+            return start_response(status, rewritten, exc_info)
+
+        return self.wrapped_app(environ, wrapped_start_response)
+
+
+app.wsgi_app = TabScopedSessionCookieMiddleware(app.wsgi_app, app)
+
+
 def csrf_token():
     token = session.get("_csrf_token")
     if not token:
@@ -210,6 +297,9 @@ def init_db():
 
 
 def current_user():
+    # A workspace request reads only the session cookie scoped to that URL.
+    # Root-level sessions are accepted only for migration compatibility; a
+    # successful new login clears that legacy shared cookie.
     uid = session.get("user_id")
     if not uid:
         return None
@@ -232,7 +322,7 @@ def login_required(view):
     def wrapped(*args, **kwargs):
         user = current_user()
         if not user:
-            return redirect(url_for("login", next=request.full_path if request.query_string else request.path))
+            return redirect("/login")
         return view(*args, **kwargs)
     return wrapped
 
@@ -242,7 +332,7 @@ def admin_required(view):
     def wrapped(*args, **kwargs):
         user = current_user()
         if not user:
-            return redirect(url_for("login", next=request.path))
+            return redirect("/login")
         if user["role"] != "admin":
             abort(403)
         return view(*args, **kwargs)
@@ -473,9 +563,11 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # Browser tabs share cookies. Keep the form available to let a signed-in
-    # person intentionally switch to another account in this browser.
-    active_user = current_user()
+    # Account workspaces have their own path-scoped cookie. Account switching
+    # always starts at the root login page so it creates a fresh workspace.
+    if request.environ.get("agrisage_workspace_id"):
+        return redirect("/login")
+    active_user = None
     if request.method == "POST":
         identifier = request.form.get("email", "").strip()
         email = identifier.lower()
@@ -490,14 +582,15 @@ def login():
             session.clear()
             session["user_id"] = row["id"]
             session["role"] = row["role"]
-            # Rotate CSRF state after successful authentication.
+            # Each login gets a fresh URL workspace and a distinct HttpOnly
+            # cookie whose Path is limited to that workspace.
             session["_csrf_token"] = secrets.token_urlsafe(32)
             session.permanent = True
+            workspace_id = secrets.token_urlsafe(24)
+            request.environ["agrisage_new_workspace_id"] = workspace_id
             log_activity(row["id"], row["email"], "login", "Successful sign-in")
-            target = request.args.get("next", "")
-            if target.startswith("/") and not target.startswith("//"):
-                return redirect(target)
-            return redirect(url_for("admin_dashboard" if row["role"] == "admin" else "dashboard"))
+            destination = url_for("admin_dashboard" if row["role"] == "admin" else "dashboard")
+            return redirect(f"/w/{workspace_id}{destination}")
         log_activity(row["id"] if row else None, email, "failed_login", "Invalid credentials or inactive account")
         flash("Email or password is incorrect.", "error")
     return render_template("login.html", active_user=current_user())
@@ -509,7 +602,7 @@ def logout():
     user = current_user()
     log_activity(user["id"], user["email"], "logout", "Signed out")
     session.clear()
-    return redirect(url_for("login"))
+    return redirect("/login")
 
 
 @app.route("/dashboard")
