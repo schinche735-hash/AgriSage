@@ -1,6 +1,7 @@
 .env
 admin_credentials.dpapi
 show_admin_credentials.py
+.render-admin-env
 __pycache__/
 *.py[cod]
 .venv/
