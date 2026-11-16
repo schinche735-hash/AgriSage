@@ -61,12 +61,54 @@ class AuthenticationTests(unittest.TestCase):
             "password": "farmer-password-123",
         })
         self.assertEqual(response.status_code, 302)
+        self.assertIn("/w/", response.headers["Location"])
         self.assertIn("/dashboard", response.headers["Location"])
-        dashboard = client.get("/dashboard")
+        dashboard = client.get(response.headers["Location"])
         self.assertEqual(dashboard.status_code, 200)
         self.assertNotIn(b"AG-000001", dashboard.data)
         self.assertNotIn(b"Your account ID", dashboard.data)
-        self.assertEqual(client.get("/admin").status_code, 403)
+        workspace_path = response.headers["Location"].split("/dashboard", 1)[0]
+        self.assertEqual(client.get(workspace_path + "/admin").status_code, 403)
+
+    def test_two_accounts_keep_independent_sessions_in_two_tabs(self):
+        client = app.test_client()
+        self.set_csrf(client)
+
+        farmer_login = client.post("/login", data={
+            "_csrf_token": "auth-test-csrf",
+            "email": "farmer@example.com",
+            "password": "farmer-password-123",
+        })
+        self.assertEqual(farmer_login.status_code, 302)
+        farmer_workspace = farmer_login.headers["Location"].split("/")[2]
+
+        # A second root login creates a second workspace cookie without
+        # replacing the first workspace's cookie.
+        self.set_csrf(client)
+        admin_login = client.post("/login", data={
+            "_csrf_token": "auth-test-csrf",
+            "email": "admin@example.com",
+            "password": "admin-password-123",
+        })
+        self.assertEqual(admin_login.status_code, 302)
+        admin_workspace = admin_login.headers["Location"].split("/")[2]
+        self.assertNotEqual(farmer_workspace, admin_workspace)
+
+        farmer_page = client.get(f"/{farmer_workspace}/dashboard")
+        admin_page = client.get(f"/{admin_workspace}/admin")
+        self.assertEqual(farmer_page.status_code, 200)
+        self.assertIn(b"Hello, Farmer One", farmer_page.data)
+        self.assertEqual(admin_page.status_code, 200)
+        self.assertIn(b"Admin dashboard", admin_page.data)
+
+        # The farmer workspace must never inherit the admin identity.
+        self.assertEqual(client.get(f"/{farmer_workspace}/admin").status_code, 403)
+
+    def test_workspace_url_alone_does_not_authenticate_another_browser(self):
+        client = app.test_client()
+        response = client.get("/w/" + "a" * 32 + "/dashboard")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers["Location"], "/login")
 
     def test_admin_can_view_activity_but_farmer_cannot(self):
         farmer = app.test_client()
