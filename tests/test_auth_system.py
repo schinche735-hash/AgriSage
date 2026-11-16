@@ -64,7 +64,8 @@ class AuthenticationTests(unittest.TestCase):
         self.assertIn("/dashboard", response.headers["Location"])
         dashboard = client.get("/dashboard")
         self.assertEqual(dashboard.status_code, 200)
-        self.assertIn(b"AG-000001", dashboard.data)
+        self.assertNotIn(b"AG-000001", dashboard.data)
+        self.assertNotIn(b"Your account ID", dashboard.data)
         self.assertEqual(client.get("/admin").status_code, 403)
 
     def test_admin_can_view_activity_but_farmer_cannot(self):
