@@ -663,6 +663,34 @@ def admin_delete_activity(activity_id):
     return redirect(url_for("admin_dashboard"))
 
 
+@app.route("/admin/users/<int:user_id>/delete", methods=["POST"])
+@admin_required
+def admin_delete_user(user_id):
+    """Permanently remove one farmer account and its account-specific records."""
+    with db_connection() as con:
+        row = con.execute(
+            "SELECT id,email,role FROM users WHERE id=?", (user_id,)
+        ).fetchone()
+        if not row or row["role"] != "user":
+            flash("That account cannot be removed.", "error")
+            return redirect(url_for("admin_dashboard"))
+
+        # Remove dependent records first because these tables may not have
+        # database-level cascading foreign keys in existing deployments.
+        con.execute("DELETE FROM prediction_history WHERE user_id=?", (user_id,))
+        con.execute("DELETE FROM activity_logs WHERE user_id=?", (user_id,))
+        con.execute("DELETE FROM users WHERE id=? AND role='user'", (user_id,))
+
+    admin = current_user()
+    if admin:
+        log_activity(
+            admin["id"], admin["email"], "user_deleted",
+            f"Permanently removed farmer account {row['email']}"
+        )
+    flash("User account and its saved scan history were permanently removed.", "success")
+    return redirect(url_for("admin_dashboard"))
+
+
 @app.route("/admin/users/<int:user_id>/status", methods=["POST"])
 @admin_required
 def admin_user_status(user_id):
