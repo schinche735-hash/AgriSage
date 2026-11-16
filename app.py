@@ -606,7 +606,7 @@ def login():
             workspace_id = secrets.token_urlsafe(24)
             request.environ["agrisage_new_workspace_id"] = workspace_id
             log_activity(row["id"], row["email"], "login", "Successful sign-in")
-            destination = url_for("admin_dashboard" if row["role"] == "admin" else "user_history")
+            destination = url_for("admin_dashboard" if row["role"] == "admin" else "index")
             return redirect(f"/w/{workspace_id}{destination}")
         log_activity(row["id"] if row else None, email, "failed_login", "Invalid credentials or inactive account")
         flash("Email or password is incorrect.", "error")
