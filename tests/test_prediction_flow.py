@@ -4,10 +4,19 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
+from werkzeug.security import generate_password_hash
 import numpy as np
 from PIL import Image
 import app as app_module
 from app import app, TARGET_LABELS
+
+
+class DummyTensor:
+    def __init__(self, values):
+        self.values = values
+
+    def numpy(self):
+        return self.values
 
 
 class DummyModel:
@@ -19,6 +28,9 @@ class DummyModel:
         values[0, 0] = 0.88
         return values
 
+    def __call__(self, images, training=False):
+        return DummyTensor(self.predict(images))
+
 
 class PredictionFlowTests(unittest.TestCase):
     def setUp(self):
@@ -28,13 +40,25 @@ class PredictionFlowTests(unittest.TestCase):
         self.db_path = self.temp_root / "predictions.db"
         self.upload_dir = self.temp_root / "uploads"
         self.upload_dir.mkdir()
-        with sqlite3.connect(self.db_path) as con:
-            con.execute("CREATE TABLE predictions(id INTEGER PRIMARY KEY AUTOINCREMENT,created_at TEXT NOT NULL,crop TEXT NOT NULL,disease TEXT NOT NULL,confidence REAL NOT NULL,image_name TEXT NOT NULL)")
         self.db_patch = patch.object(app_module, "DB_PATH", self.db_path)
         self.upload_patch = patch.object(app_module, "UPLOAD_DIR", self.upload_dir)
         self.db_patch.start()
         self.upload_patch.start()
+        app_module.init_db()
+        with app_module.db_connection() as con:
+            con.execute("INSERT INTO users(name,email,password_hash,role,is_active,created_at) VALUES(?,?,?,?,?,?)",
+                ("Test Farmer", "farmer@example.com", generate_password_hash("test-password-123"), "user", 1, "2026-01-01T00:00:00"))
         self.client = app.test_client()
+        with self.client.session_transaction() as sess:
+            sess["user_id"] = 1
+            sess["role"] = "user"
+            sess["_csrf_token"] = "test-csrf-token"
+
+    def post(self, *args, **kwargs):
+        data = kwargs.get("data")
+        if isinstance(data, dict):
+            data["_csrf_token"] = "test-csrf-token"
+        return type(self.client).post(self.client, *args, **kwargs)
 
     def tearDown(self):
         self.upload_patch.stop()
@@ -55,7 +79,7 @@ class PredictionFlowTests(unittest.TestCase):
                 buffer = io.BytesIO()
                 Image.new("RGB", (80, 80), color).save(buffer, format="JPEG")
                 buffer.seek(0)
-                response = self.client.post("/", data={
+                response = self.post("/", data={
                     "lang": "en", "crop": "auto", "leaf_image": (buffer, filename)
                 }, content_type="multipart/form-data")
                 self.assertEqual(response.status_code, 200)
@@ -80,7 +104,7 @@ class PredictionFlowTests(unittest.TestCase):
         Image.new("RGB", (240, 240), (220, 40, 35)).save(buffer, format="JPEG")
         buffer.seek(0)
         with patch("app.get_model") as model, patch("app.disease_guidance") as guidance:
-            response = self.client.post("/", data={
+            response = self.post("/", data={
                 "lang": "en", "crop": "auto", "leaf_image": (buffer, "car.jpg")
             }, content_type="multipart/form-data", follow_redirects=True)
         self.assertEqual(response.status_code, 200)
@@ -102,7 +126,7 @@ class PredictionFlowTests(unittest.TestCase):
              patch("app.get_model", return_value=(DummyModel(), TARGET_LABELS)), \
              patch("app.verify_diagnosis_image", return_value={"status": "verified", "verdict": "match", "message": "review agrees", "reason": "", "observed_crop": "corn", "observed_disease": "common rust"}), \
              patch("app.disease_guidance", return_value=research_result) as ai:
-            response = self.client.post("/", data={
+            response = self.post("/", data={
                 "lang": "en", "crop": "auto",
                 "leaf_image": (buffer, "leaf.jpg")
             }, content_type="multipart/form-data")
@@ -132,7 +156,7 @@ class PredictionFlowTests(unittest.TestCase):
             patch("app.verify_diagnosis_image", return_value=disagreement),
             patch("app.disease_guidance") as guidance,
         ):
-            response = self.client.post("/", data={
+            response = self.post("/", data={
                 "lang": "en", "crop": "auto",
                 "leaf_image": (buffer, "uncertain-leaf.jpg")
             }, content_type="multipart/form-data")
@@ -166,7 +190,7 @@ class PredictionFlowTests(unittest.TestCase):
             patch("app.verify_diagnosis_image", return_value=uncertain),
             patch("app.disease_guidance", return_value=research_result) as guidance,
         ):
-            response = self.client.post("/", data={
+            response = self.post("/", data={
                 "lang": "en", "crop": "auto",
                 "leaf_image": (buffer, "uncertain-but-valid-leaf.jpg")
             }, content_type="multipart/form-data")

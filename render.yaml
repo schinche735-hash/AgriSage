@@ -2,11 +2,19 @@ services:
   - type: web
     name: agrisage
     runtime: docker
-    plan: standard
+    plan: free
     healthCheckPath: /health
     envVars:
       - key: SECRET_KEY
         generateValue: true
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD_HASH
+        sync: false
+      - key: ADMIN2_EMAIL
+        sync: false
+      - key: ADMIN2_PASSWORD_HASH
+        sync: false
       - key: GEMINI_API_KEY
         sync: false
       - key: GEMINI_MODEL
@@ -21,7 +29,3 @@ services:
         value: "1"
       - key: TF_NUM_INTRAOP_THREADS
         value: "1"
-    disk:
-      name: agrisage-data
-      mountPath: /app/data
-      sizeGB: 1

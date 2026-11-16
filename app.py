@@ -1,11 +1,12 @@
 """Smart Crop Disease Detection with local image classification and cached AI guidance."""
-import json, os, re, sqlite3, threading, urllib.request, uuid
+import json, os, re, sqlite3, threading, urllib.request, uuid, secrets, hmac
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
-from urllib.parse import unquote, urlparse
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session, abort
 from PIL import Image, UnidentifiedImageError
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
 from research import research_disease, offline_guidance
 from vision_verification import verify_diagnosis_image
 
@@ -21,12 +22,36 @@ PV_MODEL_PATH = MODEL_DIR / "best_mnv2_pv_original.keras"
 PV_LABELS_PATH = MODEL_DIR / "labels_pv_original.json"
 UPLOAD_DIR = BASE / "static" / "uploads"
 DB_PATH = BASE / "data" / "predictions.db"
-DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
 MODEL_URL = "https://huggingface.co/ashikaasriarun/MobileNet-V2-PlantVillage/resolve/main/best_mnv2_pv_original.keras"
 os.environ.setdefault("TF_NUM_INTRAOP_THREADS", "2")
 os.environ.setdefault("TF_NUM_INTEROP_THREADS", "1")
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "smart-crop-disease-local-dev-key")
+app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_urlsafe(48)
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = os.environ.get("COOKIE_SECURE", "1" if os.environ.get("RENDER") else "0") == "1"
+
+
+def csrf_token():
+    token = session.get("_csrf_token")
+    if not token:
+        token = secrets.token_urlsafe(32)
+        session["_csrf_token"] = token
+    return token
+
+
+@app.context_processor
+def inject_csrf_token():
+    return {"csrf_token": csrf_token}
+
+
+@app.before_request
+def protect_post_requests():
+    if request.method == "POST":
+        expected = session.get("_csrf_token", "")
+        supplied = request.form.get("_csrf_token", "")
+        if not expected or not supplied or not hmac.compare_digest(expected, supplied):
+            abort(400, description="The form expired or could not be verified. Refresh and try again.")
 app.config["MAX_CONTENT_LENGTH"] = 8 * 1024 * 1024
 for path in (UPLOAD_DIR, MODEL_DIR, DB_PATH.parent): path.mkdir(parents=True, exist_ok=True)
 _model = None
@@ -77,82 +102,28 @@ CROPS = {
 LANG = {"en": "English", "hi": "Hindi", "mr": "Marathi"}
 
 
-class MySQLAdapter:
-    """Small DB-API adapter so the app can keep the same parameterised query code."""
-    def __init__(self, connection):
-        self.connection = connection
-
-    @property
-    def row_factory(self):
-        return None
-
-    @row_factory.setter
-    def row_factory(self, _value):
-        # MySQL uses DictCursor, giving the same row['column'] access as sqlite3.Row.
-        pass
-
-    def execute(self, sql, params=()):
-        cursor = self.connection.cursor()
-        cursor.execute(sql.replace("?", "%s"), params)
-        return cursor
-
-
 @contextmanager
 def db_connection():
-    if DATABASE_URL.startswith(("mysql://", "mysql+pymysql://")):
-        import pymysql
-        parsed = urlparse(DATABASE_URL.replace("mysql+pymysql://", "mysql://", 1))
-        connection = pymysql.connect(
-            host=parsed.hostname or "localhost",
-            port=parsed.port or 3306,
-            user=unquote(parsed.username or ""),
-            password=unquote(parsed.password or ""),
-            database=(parsed.path or "/smartcrop").lstrip("/"),
-            charset="utf8mb4",
-            cursorclass=pymysql.cursors.DictCursor,
-            connect_timeout=5,
-        )
-        adapter = MySQLAdapter(connection)
-        try:
-            yield adapter
-            connection.commit()
-        except Exception:
-            connection.rollback()
-            raise
-        finally:
-            connection.close()
-    else:
-        connection = sqlite3.connect(DB_PATH)
-        connection.row_factory = sqlite3.Row
-        try:
-            yield connection
-            connection.commit()
-        except Exception:
-            connection.rollback()
-            raise
-        finally:
-            connection.close()
+    """Open the local SQLite database used by the college demo."""
+    connection = sqlite3.connect(DB_PATH)
+    connection.row_factory = sqlite3.Row
+    try:
+        yield connection
+        connection.commit()
+    except Exception:
+        connection.rollback()
+        raise
+    finally:
+        connection.close()
 
 
 def database_backend():
-    return "mysql" if DATABASE_URL.startswith(("mysql://", "mysql+pymysql://")) else "sqlite"
+    return "sqlite"
 
 
 def init_db():
-    if database_backend() == "mysql":
-        statement = """CREATE TABLE IF NOT EXISTS disease_knowledge(
-            id BIGINT AUTO_INCREMENT PRIMARY KEY,
-            crop VARCHAR(100) NOT NULL,
-            disease VARCHAR(160) NOT NULL,
-            lang VARCHAR(5) NOT NULL,
-            description TEXT NOT NULL,
-            prevention TEXT NOT NULL,
-            sources_json TEXT NOT NULL,
-            updated_at VARCHAR(32) NOT NULL,
-            UNIQUE KEY unique_disease_language(crop, disease, lang)
-        )"""
-    else:
-        statement = """CREATE TABLE IF NOT EXISTS disease_knowledge(
+    with db_connection() as con:
+        con.execute("""CREATE TABLE IF NOT EXISTS disease_knowledge(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             crop TEXT NOT NULL,
             disease TEXT NOT NULL,
@@ -162,9 +133,86 @@ def init_db():
             sources_json TEXT NOT NULL,
             updated_at TEXT NOT NULL,
             UNIQUE(crop, disease, lang)
-        )"""
+        )""")
+        con.execute("""CREATE TABLE IF NOT EXISTS users(
+            id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL,
+            email TEXT NOT NULL COLLATE NOCASE UNIQUE, password_hash TEXT NOT NULL,
+            role TEXT NOT NULL DEFAULT 'user', is_active INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL)""")
+        con.execute("""CREATE TABLE IF NOT EXISTS activity_logs(
+            id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER,
+            email TEXT, action TEXT NOT NULL, details TEXT, created_at TEXT NOT NULL)""")
+        con.execute("""CREATE TABLE IF NOT EXISTS prediction_history(
+            id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL,
+            crop TEXT, disease TEXT, confidence REAL, image_name TEXT, created_at TEXT NOT NULL)""")
+
+    # Render Free uses an ephemeral SQLite database. Recreate the two admin
+    # accounts on every fresh database using precomputed Werkzeug hashes only.
+    # Plaintext admin passwords are never read by the web process.
+    admin_pairs = (
+        (os.environ.get("ADMIN_EMAIL", "").strip().lower(),
+         os.environ.get("ADMIN_PASSWORD_HASH", "").strip()),
+        (os.environ.get("ADMIN2_EMAIL", "").strip().lower(),
+         os.environ.get("ADMIN2_PASSWORD_HASH", "").strip()),
+    )
+    for email, password_hash in admin_pairs:
+        if not email or not password_hash:
+            continue
+        if not (password_hash.startswith("scrypt:") or password_hash.startswith("pbkdf2:")):
+            raise RuntimeError("Admin bootstrap requires a Werkzeug password hash, never a plaintext password.")
+        with db_connection() as con:
+            existing = con.execute("SELECT id FROM users WHERE email=?", (email,)).fetchone()
+            if existing:
+                con.execute(
+                    "UPDATE users SET password_hash=?,role='admin',is_active=1 WHERE id=?",
+                    (password_hash, existing["id"]),
+                )
+            else:
+                con.execute(
+                    "INSERT INTO users(name,email,password_hash,role,is_active,created_at) VALUES(?,?,?,?,?,?)",
+                    (email.split("@", 1)[0], email, password_hash, "admin", 1,
+                     datetime.now().isoformat(timespec="seconds")),
+                )
+
+
+def current_user():
+    uid = session.get("user_id")
+    if not uid:
+        return None
     with db_connection() as con:
-        con.execute(statement)
+        row = con.execute("SELECT id,name,email,role,is_active,created_at FROM users WHERE id=?", (uid,)).fetchone()
+    if not row or not row["is_active"]:
+        session.clear()
+        return None
+    return dict(row)
+
+
+def log_activity(user_id, email, action, details=""):
+    with db_connection() as con:
+        con.execute("INSERT INTO activity_logs(user_id,email,action,details,created_at) VALUES(?,?,?,?,?)",
+            (user_id, email, action, details[:500], datetime.now().isoformat(timespec="seconds")))
+
+
+def login_required(view):
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        user = current_user()
+        if not user:
+            return redirect(url_for("login", next=request.full_path if request.query_string else request.path))
+        return view(*args, **kwargs)
+    return wrapped
+
+
+def admin_required(view):
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        user = current_user()
+        if not user:
+            return redirect(url_for("login", next=request.path))
+        if user["role"] != "admin":
+            abort(403)
+        return view(*args, **kwargs)
+    return wrapped
 
 
 KNOWLEDGE_CACHE_DAYS = 90
@@ -364,7 +412,124 @@ def crop_options_for_model(lang):
     return [(key, value[lang]) for key, value in CROPS.items() if key == "auto" or key in supported]
 
 
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if current_user():
+        return redirect(url_for("dashboard"))
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+        if len(name) < 2 or len(name) > 120 or "@" not in email or len(password) < 8:
+            flash("Enter your name, a valid email and a password with at least 8 characters.", "error")
+            return render_template("register.html")
+        try:
+            with db_connection() as con:
+                con.execute("INSERT INTO users(name,email,password_hash,role,is_active,created_at) VALUES(?,?,?,?,?,?)",
+                    (name, email, generate_password_hash(password), "user", 1, datetime.now().isoformat(timespec="seconds")))
+                row = con.execute("SELECT id FROM users WHERE email=?", (email,)).fetchone()
+            log_activity(row["id"], email, "registration", "New farmer account created")
+            flash("Account created. Please log in.", "success")
+            return redirect(url_for("login"))
+        except Exception:
+            app.logger.exception("Registration failed")
+            flash("That email may already be registered. Please try another.", "error")
+    return render_template("register.html")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if current_user():
+        return redirect(url_for("admin_dashboard" if session.get("role") == "admin" else "dashboard"))
+    if request.method == "POST":
+        identifier = request.form.get("email", "").strip()
+        email = identifier.lower()
+        password = request.form.get("password", "")
+        with db_connection() as con:
+            if re.fullmatch(r"AG-\d{6,}", identifier.upper()):
+                account_id = int(identifier[3:])
+                row = con.execute("SELECT * FROM users WHERE id=?", (account_id,)).fetchone()
+            else:
+                row = con.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
+        if row and row["is_active"] and check_password_hash(row["password_hash"], password):
+            session.clear()
+            session["user_id"] = row["id"]
+            session["role"] = row["role"]
+            session.permanent = True
+            log_activity(row["id"], row["email"], "login", "Successful sign-in")
+            target = request.args.get("next", "")
+            if target.startswith("/") and not target.startswith("//"):
+                return redirect(target)
+            return redirect(url_for("admin_dashboard" if row["role"] == "admin" else "dashboard"))
+        log_activity(row["id"] if row else None, email, "failed_login", "Invalid credentials or inactive account")
+        flash("Email or password is incorrect.", "error")
+    return render_template("login.html")
+
+
+@app.route("/logout", methods=["POST"])
+@login_required
+def logout():
+    user = current_user()
+    log_activity(user["id"], user["email"], "logout", "Signed out")
+    session.clear()
+    return redirect(url_for("login"))
+
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    user = current_user()
+    if user["role"] == "admin":
+        return redirect(url_for("admin_dashboard"))
+    with db_connection() as con:
+        scans = con.execute("SELECT crop,disease,confidence,created_at FROM prediction_history WHERE user_id=? ORDER BY id DESC LIMIT 10", (user["id"],)).fetchall()
+        total = con.execute("SELECT COUNT(*) AS n FROM prediction_history WHERE user_id=?", (user["id"],)).fetchone()["n"]
+    return render_template("dashboard.html", user=user, scans=scans, total_scans=total)
+
+
+@app.route("/admin")
+@app.route("/admin/dashboard")
+@admin_required
+def admin_dashboard():
+    with db_connection() as con:
+        stats = {
+            "users": con.execute("SELECT COUNT(*) AS n FROM users WHERE role='user'").fetchone()["n"],
+            "active": con.execute("SELECT COUNT(*) AS n FROM users WHERE role='user' AND is_active=1").fetchone()["n"],
+            "scans": con.execute("SELECT COUNT(*) AS n FROM prediction_history").fetchone()["n"],
+            "today": con.execute("SELECT COUNT(*) AS n FROM activity_logs WHERE created_at>=?", (datetime.now().date().isoformat(),)).fetchone()["n"],
+        }
+        users = con.execute("SELECT id,name,email,role,is_active,created_at FROM users ORDER BY id DESC LIMIT 100").fetchall()
+        activities = con.execute("SELECT id,user_id,email,action,details,created_at FROM activity_logs ORDER BY id DESC LIMIT 100").fetchall()
+    return render_template("admin_dashboard.html", stats=stats, users=users, activities=activities, admin=current_user())
+
+
+@app.route("/admin/users/<int:user_id>/status", methods=["POST"])
+@admin_required
+def admin_user_status(user_id):
+    if user_id == session.get("user_id"):
+        flash("You cannot deactivate your own administrator account.", "error")
+    else:
+        with db_connection() as con:
+            row = con.execute("SELECT id,email,role,is_active FROM users WHERE id=?", (user_id,)).fetchone()
+            if row and row["role"] != "admin":
+                new_status = 0 if row["is_active"] else 1
+                con.execute("UPDATE users SET is_active=? WHERE id=?", (new_status, user_id))
+                changed_email = row["email"]
+                changed_label = "active" if new_status else "inactive"
+            else:
+                changed_email = None
+                changed_label = None
+        if changed_email:
+            log_activity(session["user_id"], current_user()["email"], "user_status_changed",
+                f"User {changed_email} set to {changed_label}")
+            flash("User status updated.", "success")
+        else:
+            flash("That account cannot be changed.", "error")
+    return redirect(url_for("admin_dashboard"))
+
+
 @app.route("/", methods=["GET", "POST"])
+@login_required
 def index():
     lang = request.args.get("lang", request.form.get("lang", "en"))
     if lang not in LANG: lang = "en"
@@ -452,6 +617,16 @@ def index():
                 "model_name": "Crop image classifier",
                 "healthy": disease.lower() == "healthy" and confirmed,
             }
+            account = current_user()
+            if account:
+                try:
+                    with db_connection() as con:
+                        con.execute("INSERT INTO prediction_history(user_id,crop,disease,confidence,image_name,created_at) VALUES(?,?,?,?,?,?)",
+                            (account["id"], crop, result["disease"], score, saved, datetime.now().isoformat(timespec="seconds")))
+                    log_activity(account["id"], account["email"], "disease_prediction",
+                        f"{crop}: {result['disease']} ({score:.3f})")
+                except Exception:
+                    app.logger.exception("Could not save account scan history; prediction remains available.")
         except Exception as exc:
             app.logger.exception("Prediction failed")
             flash({"en":"The disease model could not run. Please retry. Details: ","hi":"रोग पहचान मॉडल नहीं चल सका। कृपया फिर से प्रयास करें। विवरण: ","mr":"रोग ओळख मॉडेल चालू शकले नाही. कृपया पुन्हा प्रयत्न करा. तपशील: "}[lang] + str(exc)[:180], "error")
@@ -583,6 +758,7 @@ def _preload_model_in_background():
         app.logger.exception("Background model warm-up failed; it will retry on the first scan.")
 
 # Render health checks can start immediately while TensorFlow initializes in the background.
-threading.Thread(target=_preload_model_in_background, name="model-warmup", daemon=True).start()
+if os.environ.get("AGROSAGE_SKIP_MODEL_WARMUP") != "1":
+    threading.Thread(target=_preload_model_in_background, name="model-warmup", daemon=True).start()
 
 if __name__ == "__main__": app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "5000")), debug=False)

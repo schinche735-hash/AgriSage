@@ -17,6 +17,7 @@ RUN python -m pip install --no-cache-dir --upgrade pip && \
     python -m pip install --no-cache-dir -r requirements.txt
 
 COPY app.py .
+COPY setup_admins.py .
 COPY templates ./templates
 COPY static ./static
 COPY models/plantdisease_expanded_frozen_old_candidate.keras ./models/plantdisease_expanded_frozen_old_candidate.keras

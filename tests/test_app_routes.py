@@ -2,13 +2,30 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
+import app as app_module
+from werkzeug.security import generate_password_hash
 from app import app, TARGET_LABELS, CROPS, label_allowed, disease_guidance, crop_options_for_model, EXPANDED_MODEL_PATH, EXPANDED_LABELS_PATH, ALL_MODEL_PATH, ALL_LABELS_PATH, PV_LABELS_PATH, reference_image_name
 
 
 class AppRouteTests(unittest.TestCase):
     def setUp(self):
         app.config["TESTING"] = True
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.db_patch = patch.object(app_module, "DB_PATH", Path(self.temp_dir.name) / "routes.db")
+        self.db_patch.start()
+        app_module.init_db()
+        with app_module.db_connection() as con:
+            con.execute("INSERT INTO users(name,email,password_hash,role,is_active,created_at) VALUES(?,?,?,?,?,?)",
+                ("Test Farmer", "farmer@example.com", generate_password_hash("test-password-123"), "user", 1, "2026-01-01T00:00:00"))
         self.client = app.test_client()
+        with self.client.session_transaction() as sess:
+            sess["user_id"] = 1
+            sess["role"] = "user"
+            sess["_csrf_token"] = "test-csrf-token"
+
+    def tearDown(self):
+        self.db_patch.stop()
+        self.temp_dir.cleanup()
 
     def test_home_languages_render(self):
         for lang in ("en", "hi", "mr"):
@@ -27,14 +44,15 @@ class AppRouteTests(unittest.TestCase):
         self.assertTrue({"Soybean", "Wheat", "Tur"}.issubset(CROPS))
         html = self.client.get("/").get_data(as_text=True)
         self.assertIn('name="crop"', html)
-        self.assertIn("Let the model choose", html)
+        self.assertNotIn('value="auto"', html)
         self.assertIn("Maize / corn", html)
         self.assertIn("Potato", html)
         self.assertIn("Tomato", html)
         self.assertNotIn("Gemini review only", html)
         self.assertIn("Crop Health Guide", html)
         options = {key for key, _ in crop_options_for_model("en")}
-        if not (ALL_MODEL_PATH.exists() and ALL_LABELS_PATH.exists()):
+        if not ((EXPANDED_MODEL_PATH.exists() and EXPANDED_LABELS_PATH.exists()) or
+                (ALL_MODEL_PATH.exists() and ALL_LABELS_PATH.exists())):
             self.assertEqual(options, {"auto", "Corn_(maize)", "Potato", "Tomato"})
 
     def test_reference_thumbnails_cover_all_plantvillage_diseases(self):
