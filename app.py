@@ -96,8 +96,8 @@ class TabScopedSessionCookieMiddleware:
                     name = self.cookie_name(target_workspace)
                     value = re.sub(r"^session=", name + "=", header_value, count=1, flags=re.IGNORECASE)
                     scoped_path = f"/w/{target_workspace}"
-                    if re.search(r";\\s*path=", value, flags=re.IGNORECASE):
-                        value = re.sub(r";\\s*path=[^;]*", "; Path=" + scoped_path, value, count=1, flags=re.IGNORECASE)
+                    if re.search(r";\s*path=", value, flags=re.IGNORECASE):
+                        value = re.sub(r";\s*path=[^;]*", "; Path=" + scoped_path, value, count=1, flags=re.IGNORECASE)
                     else:
                         value += "; Path=" + scoped_path
                     rewritten.append((header_name, value))
@@ -593,7 +593,7 @@ def login():
             return redirect(f"/w/{workspace_id}{destination}")
         log_activity(row["id"] if row else None, email, "failed_login", "Invalid credentials or inactive account")
         flash("Email or password is incorrect.", "error")
-    return render_template("login.html", active_user=current_user())
+    return render_template("login.html", active_user=None)
 
 
 @app.route("/logout", methods=["POST"])
