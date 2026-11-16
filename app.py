@@ -606,7 +606,7 @@ def login():
             workspace_id = secrets.token_urlsafe(24)
             request.environ["agrisage_new_workspace_id"] = workspace_id
             log_activity(row["id"], row["email"], "login", "Successful sign-in")
-            destination = url_for("admin_dashboard" if row["role"] == "admin" else "dashboard")
+            destination = url_for("admin_dashboard" if row["role"] == "admin" else "user_history")
             return redirect(f"/w/{workspace_id}{destination}")
         log_activity(row["id"] if row else None, email, "failed_login", "Invalid credentials or inactive account")
         flash("Email or password is incorrect.", "error")
@@ -628,10 +628,21 @@ def dashboard():
     user = current_user()
     if user["role"] == "admin":
         return redirect(url_for("admin_dashboard"))
+    return redirect(url_for("user_history"))
+
+
+@app.route("/history")
+@login_required
+def user_history():
+    user = current_user()
+    if user["role"] == "admin":
+        return redirect(url_for("admin_dashboard"))
     with db_connection() as con:
-        scans = con.execute("SELECT crop,disease,confidence,created_at FROM prediction_history WHERE user_id=? ORDER BY id DESC LIMIT 10", (user["id"],)).fetchall()
-        total = con.execute("SELECT COUNT(*) AS n FROM prediction_history WHERE user_id=?", (user["id"],)).fetchone()["n"]
-    return render_template("dashboard.html", user=user, scans=scans, total_scans=total)
+        scans = con.execute(
+            "SELECT crop,disease,confidence,image_name,created_at FROM prediction_history WHERE user_id=? ORDER BY id DESC",
+            (user["id"],),
+        ).fetchall()
+    return render_template("history.html", user=user, scans=scans)
 
 
 @app.route("/admin")
@@ -904,9 +915,6 @@ def library():
         })
     return render_template("library.html", catalog=catalog, lang=lang)
 
-@app.route("/history")
-def old_history_link():
-    return redirect(url_for("library", lang=request.args.get("lang", "en")))
 
 
 @app.route("/health")
