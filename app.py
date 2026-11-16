@@ -4,6 +4,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
 from flask import Flask, render_template, request, redirect, url_for, flash, session, abort
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from PIL import Image, UnidentifiedImageError
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -27,6 +28,7 @@ os.environ.setdefault("TF_NUM_INTRAOP_THREADS", "2")
 os.environ.setdefault("TF_NUM_INTEROP_THREADS", "1")
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_urlsafe(48)
+login_csrf_serializer = URLSafeTimedSerializer(app.secret_key, salt="agrisage-login-csrf")
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_SECURE"] = os.environ.get("COOKIE_SECURE", "1" if os.environ.get("RENDER") else "0") == "1"
@@ -120,6 +122,11 @@ app.wsgi_app = TabScopedSessionCookieMiddleware(app.wsgi_app, app)
 
 
 def csrf_token():
+    # Root login/register forms use a signed, short-lived per-render token.
+    # It does not depend on the shared root cookie, so two login pages opened
+    # before either one is submitted remain independently valid.
+    if not request.environ.get("agrisage_workspace_id"):
+        return login_csrf_serializer.dumps(secrets.token_urlsafe(32))
     token = session.get("_csrf_token")
     if not token:
         token = secrets.token_urlsafe(32)
@@ -135,9 +142,19 @@ def inject_csrf_token():
 @app.before_request
 def protect_post_requests():
     if request.method == "POST":
-        expected = session.get("_csrf_token", "")
         supplied = request.form.get("_csrf_token", "")
-        if not expected or not supplied or not hmac.compare_digest(expected, supplied):
+        if request.environ.get("agrisage_workspace_id"):
+            expected = session.get("_csrf_token", "")
+            valid = bool(expected and supplied and hmac.compare_digest(expected, supplied))
+        else:
+            try:
+                login_csrf_serializer.loads(supplied, max_age=3600)
+                valid = True
+            except (BadSignature, SignatureExpired):
+                # Compatibility for existing local tests and pre-workspace forms.
+                expected = session.get("_csrf_token", "")
+                valid = bool(expected and supplied and hmac.compare_digest(expected, supplied))
+        if not valid:
             abort(400, description="The form expired or could not be verified. Refresh and try again.")
 app.config["MAX_CONTENT_LENGTH"] = 8 * 1024 * 1024
 for path in (UPLOAD_DIR, MODEL_DIR, DB_PATH.parent): path.mkdir(parents=True, exist_ok=True)
