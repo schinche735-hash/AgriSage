@@ -64,3 +64,7 @@
 
 /* Admin identity initials are shown only in the admin logout control. */
 .admin-logout{display:inline-flex;align-items:center;gap:8px;padding:6px 11px 6px 7px}.admin-avatar{width:27px;height:27px;display:inline-grid;place-items:center;border-radius:50%;background:#e3efdc;color:#315f3d;font-size:10px;font-weight:900;letter-spacing:.3px}
+
+
+/* Per-entry remove control in the Admin activity log. */
+.activity-remove{width:30px;height:30px;display:inline-grid;place-items:center;border:1px solid #e8caca;border-radius:8px;background:#fff7f6;color:#a33b35;font-size:22px;line-height:1;cursor:pointer;transition:background .15s ease,border-color .15s ease}.activity-remove:hover{background:#fde9e7;border-color:#d99a95}.activity-remove:focus-visible{outline:2px solid #a33b35;outline-offset:2px}
