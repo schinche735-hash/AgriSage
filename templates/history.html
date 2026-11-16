@@ -12,7 +12,6 @@
 <a class="auth-brand" href="{{ url_for('index') }}">&#127793; AgroSage</a>
 <nav>
 <a href="{{ url_for('index') }}">Disease detection</a>
-<a href="{{ url_for('user_history') }}" aria-current="page">My history</a>
 <a href="{{ url_for('community') }}">Community</a>
 <form method="post" action="{{ url_for('logout') }}">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
