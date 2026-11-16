@@ -650,6 +650,19 @@ def admin_dashboard():
     return render_template("admin_dashboard.html", stats=stats, users=users, activities=activities, admin=current_user())
 
 
+@app.route("/admin/activity/<int:activity_id>/delete", methods=["POST"])
+@admin_required
+def admin_delete_activity(activity_id):
+    """Allow an administrator to remove one specific activity-log entry."""
+    with db_connection() as con:
+        result = con.execute("DELETE FROM activity_logs WHERE id=?", (activity_id,))
+    if result.rowcount:
+        flash("Activity log entry removed.", "success")
+    else:
+        flash("That activity log entry was not found.", "error")
+    return redirect(url_for("admin_dashboard"))
+
+
 @app.route("/admin/users/<int:user_id>/status", methods=["POST"])
 @admin_required
 def admin_user_status(user_id):
