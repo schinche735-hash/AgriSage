@@ -94,15 +94,15 @@ class AuthenticationTests(unittest.TestCase):
         admin_workspace = admin_login.headers["Location"].split("/")[2]
         self.assertNotEqual(farmer_workspace, admin_workspace)
 
-        farmer_page = client.get(f"/{farmer_workspace}/dashboard")
-        admin_page = client.get(f"/{admin_workspace}/admin")
+        farmer_page = client.get(f"/w/{farmer_workspace}/dashboard")
+        admin_page = client.get(f"/w/{admin_workspace}/admin")
         self.assertEqual(farmer_page.status_code, 200)
         self.assertIn(b"Hello, Farmer One", farmer_page.data)
         self.assertEqual(admin_page.status_code, 200)
         self.assertIn(b"Admin dashboard", admin_page.data)
 
         # The farmer workspace must never inherit the admin identity.
-        self.assertEqual(client.get(f"/{farmer_workspace}/admin").status_code, 403)
+        self.assertEqual(client.get(f"/w/{farmer_workspace}/admin").status_code, 403)
 
     def test_workspace_url_alone_does_not_authenticate_another_browser(self):
         client = app.test_client()
