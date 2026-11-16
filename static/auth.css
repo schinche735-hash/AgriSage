@@ -60,3 +60,7 @@
 .password-toggle:hover{background:#edf5e9;color:#315f3d}
 .password-toggle:focus-visible{outline:2px solid #79a66a;outline-offset:2px}
 .password-toggle svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+
+/* Admin identity initials are shown only in the admin logout control. */
+.admin-logout{display:inline-flex;align-items:center;gap:8px;padding:6px 11px 6px 7px}.admin-avatar{width:27px;height:27px;display:inline-grid;place-items:center;border-radius:50%;background:#e3efdc;color:#315f3d;font-size:10px;font-weight:900;letter-spacing:.3px}
