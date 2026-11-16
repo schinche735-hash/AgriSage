@@ -68,3 +68,7 @@
 
 /* Per-entry remove control in the Admin activity log. */
 .activity-remove{width:30px;height:30px;display:inline-grid;place-items:center;border:1px solid #e8caca;border-radius:8px;background:#fff7f6;color:#a33b35;font-size:22px;line-height:1;cursor:pointer;transition:background .15s ease,border-color .15s ease}.activity-remove:hover{background:#fde9e7;border-color:#d99a95}.activity-remove:focus-visible{outline:2px solid #a33b35;outline-offset:2px}
+
+
+/* Admin user-management actions: status toggle and permanent removal. */
+.user-actions{display:flex;align-items:center;gap:8px;white-space:nowrap}.user-actions form{display:inline-flex}
