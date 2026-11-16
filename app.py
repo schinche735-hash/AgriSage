@@ -439,8 +439,9 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if current_user():
-        return redirect(url_for("admin_dashboard" if session.get("role") == "admin" else "dashboard"))
+    # Browser tabs share cookies. Keep the form available to let a signed-in
+    # person intentionally switch to another account in this browser.
+    active_user = current_user()
     if request.method == "POST":
         identifier = request.form.get("email", "").strip()
         email = identifier.lower()
@@ -455,6 +456,8 @@ def login():
             session.clear()
             session["user_id"] = row["id"]
             session["role"] = row["role"]
+            # Rotate CSRF state after successful authentication.
+            session["_csrf_token"] = secrets.token_urlsafe(32)
             session.permanent = True
             log_activity(row["id"], row["email"], "login", "Successful sign-in")
             target = request.args.get("next", "")
@@ -463,7 +466,7 @@ def login():
             return redirect(url_for("admin_dashboard" if row["role"] == "admin" else "dashboard"))
         log_activity(row["id"] if row else None, email, "failed_login", "Invalid credentials or inactive account")
         flash("Email or password is incorrect.", "error")
-    return render_template("login.html")
+    return render_template("login.html", active_user=current_user())
 
 
 @app.route("/logout", methods=["POST"])
@@ -737,6 +740,27 @@ def health():
     healthy_count = sum(1 for label in active_labels if label.endswith("___healthy"))
     preference = "expanded55_incremental_mobilenetv2" if all43 else "all38_mobilenetv2" if all38 else "ten_disease_mobilenetv2" if focused else "existing_plantvillage_filtered"
     return {"app": "ok", "database": database_backend(), "model_file_present": (EXPANDED_MODEL_PATH.exists() and EXPANDED_LABELS_PATH.exists()) or (ALL_MODEL_PATH.exists() and ALL_LABELS_PATH.exists()) or (TEN_MODEL_PATH.exists() and TEN_LABELS_PATH.exists()) or PV_MODEL_PATH.exists(), "model_preference": preference, "target_disease_count": disease_count, "healthy_classes": healthy_count, "ai_role": "image_verification_and_description_and_prevention", "shared_disease_knowledge_cache": True, "knowledge_cache_refresh_days": KNOWLEDGE_CACHE_DAYS}
+
+
+@app.errorhandler(403)
+def forbidden(_):
+    return render_template(
+        "login.html",
+        active_user=current_user(),
+        auth_error="This account does not have permission to open that page. Sign in with an administrator account or switch accounts below.",
+    ), 403
+
+
+@app.errorhandler(400)
+def bad_request(error):
+    description = getattr(error, "description", "")
+    if "form expired" in str(description).lower() or "could not be verified" in str(description).lower():
+        return render_template(
+            "login.html",
+            active_user=current_user(),
+            auth_error="This form or sign-in session expired. Refresh the page and try again.",
+        ), 400
+    return error
 
 
 @app.errorhandler(413)
