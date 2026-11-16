@@ -104,6 +104,17 @@ class AuthenticationTests(unittest.TestCase):
         # The farmer workspace must never inherit the admin identity.
         self.assertEqual(client.get(f"/w/{farmer_workspace}/admin").status_code, 403)
 
+        # Logging out of one tab revokes only that tab's scoped cookie.
+        import re
+        csrf_match = re.search(rb'name="_csrf_token" value="([^"]+)"', farmer_page.data)
+        self.assertIsNotNone(csrf_match)
+        logout = client.post(
+            f"/w/{farmer_workspace}/logout",
+            data={"_csrf_token": csrf_match.group(1).decode("utf-8")},
+        )
+        self.assertEqual(logout.status_code, 302)
+        self.assertEqual(client.get(f"/w/{admin_workspace}/admin").status_code, 200)
+
     def test_workspace_url_alone_does_not_authenticate_another_browser(self):
         client = app.test_client()
         response = client.get("/w/" + "a" * 32 + "/dashboard")
