@@ -11,7 +11,7 @@
 </style></head>
 <body>
 <header class="topbar"><a class="brand" href="{{ request.script_root }}/?lang={{ lang }}"><span class="brand-mark" aria-hidden="true">🌿</span><span><span class="brand-name-main">Agri</span><span class="brand-light">Sage</span></span></a><nav>
-<a href="/?lang={{ lang }}">{% if lang == 'hi' %}रोग पहचानें{% elif lang == 'mr' %}रोग ओळखा{% else %}Detect{% endif %}</a>
+<a href="{{ request.script_root }}/?lang={{ lang }}">{% if lang == 'hi' %}रोग पहचानें{% elif lang == 'mr' %}रोग ओळखा{% else %}Detect{% endif %}</a>
 <a class="history-nav" href="{{ url_for('library', lang=lang) }}">{% if lang == 'hi' %}फसल स्वास्थ्य गाइड{% elif lang == 'mr' %}पीक आरोग्य मार्गदर्शिका{% else %}Crop Health Guide{% endif %}</a>
 <div class="language-select-shell" id="language-select-shell"><button class="language-picker-button" id="language-menu-button" type="button" aria-label="{% if lang == 'hi' %}भाषा चुनें{% elif lang == 'mr' %}भाषा निवडा{% else %}Choose language{% endif %}" aria-haspopup="listbox" aria-expanded="false" aria-controls="language-menu"><span>{{ {'en':'English','hi':'हिन्दी','mr':'मराठी'}[lang] }}</span><span class="crop-select-chevron" aria-hidden="true">⌄</span></button><div class="language-menu" id="language-menu" role="listbox" aria-labelledby="language-menu-button" hidden>{% for key, label in [('en','English'),('hi','हिन्दी'),('mr','मराठी')] %}<button type="button" class="language-menu-option{% if lang == key %} is-selected{% endif %}" role="option" data-value="{{ key }}" aria-selected="{{ 'true' if lang == key else 'false' }}">{{ label }}</button>{% endfor %}</div></div></nav></header>
 <main>
@@ -31,7 +31,7 @@
 </div></article>
 {% endfor %}
 </section>
-<a class="library-back" href="/?lang={{ lang }}">← {% if lang == 'hi' %}रोग पहचान पर वापस जाएँ{% elif lang == 'mr' %}रोग ओळखीकडे परत जा{% else %}Back to disease detection{% endif %}</a>
+<a class="library-back" href="{{ request.script_root }}/?lang={{ lang }}">← {% if lang == 'hi' %}रोग पहचान पर वापस जाएँ{% elif lang == 'mr' %}रोग ओळखीकडे परत जा{% else %}Back to disease detection{% endif %}</a>
 </main><script>
 const languageShell=document.getElementById('language-select-shell'),languageButton=document.getElementById('language-menu-button'),languageMenu=document.getElementById('language-menu');
 function closeLanguageMenu(){languageMenu.hidden=true;languageButton.setAttribute('aria-expanded','false');}
