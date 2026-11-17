@@ -141,7 +141,7 @@ class AppRouteTests(unittest.TestCase):
     def test_farmer_history_url_opens_personal_scan_history(self):
         response = self.client.get("/history", follow_redirects=False)
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b"My history", response.data)
+        self.assertIn(b"My scan history", response.data)
 
     def test_cached_guidance_skips_gemini_request(self):
         cached = {"status": "cached", "message": "", "description": "Saved description",
