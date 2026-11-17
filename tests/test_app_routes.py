@@ -27,10 +27,18 @@ class AppRouteTests(unittest.TestCase):
         self.db_patch.stop()
         self.temp_dir.cleanup()
 
+    def test_public_landing_page_is_available_without_sign_in(self):
+        visitor = app.test_client()
+        response = visitor.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Grow with confidence", response.data)
+        self.assertIn(b"Get started as a farmer", response.data)
+        self.assertIn(b"Administrator access", response.data)
+
     def test_home_languages_render(self):
         for lang in ("en", "hi", "mr"):
             with self.subTest(lang=lang):
-                response = self.client.get(f"/?lang={lang}")
+                response = self.client.get(f"/scan?lang={lang}")
                 self.assertEqual(response.status_code, 200)
                 self.assertIn(b"plant", response.data.lower())
                 self.assertNotIn(b"10 diseases across 3 crops", response.data)
@@ -42,7 +50,7 @@ class AppRouteTests(unittest.TestCase):
         self.assertTrue({"auto", "Corn_(maize)", "Potato", "Tomato", "Apple", "Grape", "Pepper,_bell"}.issubset(CROPS))
         self.assertFalse({"Blueberry", "Raspberry"}.intersection(CROPS))
         self.assertTrue({"Soybean", "Wheat", "Tur"}.issubset(CROPS))
-        html = self.client.get("/").get_data(as_text=True)
+        html = self.client.get("/scan").get_data(as_text=True)
         self.assertIn('name="crop"', html)
         self.assertNotIn('value="auto"', html)
         self.assertIn("Maize / corn", html)
