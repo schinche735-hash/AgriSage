@@ -138,10 +138,10 @@ class AppRouteTests(unittest.TestCase):
             self.assertTrue((Path(__file__).resolve().parents[1] / "static" / "disease_images" / filename).is_file())
         self.assertNotIn("The classifier did not find a familiar disease pattern", html)
 
-    def test_old_history_url_redirects_to_library(self):
+    def test_farmer_history_url_opens_personal_scan_history(self):
         response = self.client.get("/history", follow_redirects=False)
-        self.assertEqual(response.status_code, 302)
-        self.assertIn("/library", response.headers["Location"])
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"My history", response.data)
 
     def test_cached_guidance_skips_gemini_request(self):
         cached = {"status": "cached", "message": "", "description": "Saved description",
