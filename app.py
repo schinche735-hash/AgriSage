@@ -606,7 +606,7 @@ def login():
             workspace_id = secrets.token_urlsafe(24)
             request.environ["agrisage_new_workspace_id"] = workspace_id
             log_activity(row["id"], row["email"], "login", "Successful sign-in")
-            destination = url_for("admin_dashboard" if row["role"] == "admin" else "index")
+            destination = url_for("admin_dashboard" if row["role"] == "admin" else "dashboard")
             return redirect(f"/w/{workspace_id}{destination}")
         log_activity(row["id"] if row else None, email, "failed_login", "Invalid credentials, inactive account, or wrong sign-in area")
         flash("Email or password is incorrect for this sign-in area.", "error")
@@ -621,8 +621,9 @@ app.add_url_rule("/admin/login", endpoint="admin_login", view_func=login, method
 def logout():
     user = current_user()
     log_activity(user["id"], user["email"], "logout", "Signed out")
+    destination = "/admin/login" if user["role"] == "admin" else "/login"
     session.clear()
-    return redirect("/login")
+    return redirect(destination)
 
 
 @app.route("/dashboard")
@@ -631,7 +632,15 @@ def dashboard():
     user = current_user()
     if user["role"] == "admin":
         return redirect(url_for("admin_dashboard"))
-    return redirect(url_for("user_history"))
+    with db_connection() as con:
+        total_scans = con.execute(
+            "SELECT COUNT(*) AS n FROM prediction_history WHERE user_id=?", (user["id"],)
+        ).fetchone()["n"]
+        scans = con.execute(
+            "SELECT crop,disease,confidence,image_name,created_at FROM prediction_history WHERE user_id=? ORDER BY id DESC LIMIT 8",
+            (user["id"],),
+        ).fetchall()
+    return render_template("dashboard.html", user=user, total_scans=total_scans, scans=scans)
 
 
 @app.route("/history")
@@ -949,7 +958,8 @@ def forbidden(_):
     return render_template(
         "login.html",
         active_user=current_user(),
-        auth_error="This account does not have permission to open that page. Sign in with an administrator account or switch accounts below.",
+        auth_error="This account does not have permission to open that page. Sign in with an administrator account.",
+        login_role="admin",
     ), 403
 
 
@@ -961,6 +971,7 @@ def bad_request(error):
             "login.html",
             active_user=current_user(),
             auth_error="This form or sign-in session expired. Refresh the page and try again.",
+            login_role="admin" if request.path.endswith("/admin/login") else "user",
         ), 400
     return error
 
