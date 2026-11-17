@@ -606,7 +606,7 @@ def login():
             workspace_id = secrets.token_urlsafe(24)
             request.environ["agrisage_new_workspace_id"] = workspace_id
             log_activity(row["id"], row["email"], "login", "Successful sign-in")
-            destination = url_for("admin_dashboard" if row["role"] == "admin" else "user_history")
+            destination = url_for("admin_dashboard" if row["role"] == "admin" else "index")
             return redirect(f"/w/{workspace_id}{destination}")
         log_activity(row["id"] if row else None, email, "failed_login", "Invalid credentials, inactive account, or wrong sign-in area")
         flash("Email or password is incorrect for this sign-in area.", "error")
@@ -841,7 +841,7 @@ def index():
         except Exception as exc:
             app.logger.exception("Prediction failed")
             flash({"en":"The disease model could not run. Please retry. Details: ","hi":"रोग पहचान मॉडल नहीं चल सका। कृपया फिर से प्रयास करें। विवरण: ","mr":"रोग ओळख मॉडेल चालू शकले नाही. कृपया पुन्हा प्रयत्न करा. तपशील: "}[lang] + str(exc)[:180], "error")
-    return render_template("index.html", result=result, lang=lang, crop_choice=crop_choice, crop_options=crop_options, model_trained=(EXPANDED_MODEL_PATH.exists() and EXPANDED_LABELS_PATH.exists()) or (ALL_MODEL_PATH.exists() and ALL_LABELS_PATH.exists()) or (TEN_MODEL_PATH.exists() and TEN_LABELS_PATH.exists()))
+    return render_template("index.html", result=result, lang=lang, crop_choice=crop_choice, crop_options=crop_options, active_user=current_user(), model_trained=(EXPANDED_MODEL_PATH.exists() and EXPANDED_LABELS_PATH.exists()) or (ALL_MODEL_PATH.exists() and ALL_LABELS_PATH.exists()) or (TEN_MODEL_PATH.exists() and TEN_LABELS_PATH.exists()))
 
 
 @app.route("/community")
