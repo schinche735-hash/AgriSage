@@ -349,7 +349,7 @@ def admin_required(view):
     def wrapped(*args, **kwargs):
         user = current_user()
         if not user:
-            return redirect("/login")
+            return redirect("/admin/login")
         if user["role"] != "admin":
             abort(403)
         return view(*args, **kwargs)
@@ -580,11 +580,11 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # Account workspaces have their own path-scoped cookie. Account switching
-    # always starts at the root login page so it creates a fresh workspace.
+    # Farmer and administrator sign-in use separate entry points and role checks.
+    # Account workspaces have their own path-scoped cookie.
     if request.environ.get("agrisage_workspace_id"):
-        return redirect("/login")
-    active_user = None
+        return redirect("/admin/login" if request.path.endswith("/admin/login") else "/login")
+    expected_role = "admin" if request.path.rstrip("/") == "/admin/login" else "user"
     if request.method == "POST":
         identifier = request.form.get("email", "").strip()
         email = identifier.lower()
@@ -595,7 +595,7 @@ def login():
                 row = con.execute("SELECT * FROM users WHERE id=?", (account_id,)).fetchone()
             else:
                 row = con.execute("SELECT * FROM users WHERE LOWER(email)=LOWER(?)", (email,)).fetchone()
-        if row and row["is_active"] and check_password_hash(row["password_hash"], password):
+        if row and row["is_active"] and row["role"] == expected_role and check_password_hash(row["password_hash"], password):
             session.clear()
             session["user_id"] = row["id"]
             session["role"] = row["role"]
@@ -606,11 +606,14 @@ def login():
             workspace_id = secrets.token_urlsafe(24)
             request.environ["agrisage_new_workspace_id"] = workspace_id
             log_activity(row["id"], row["email"], "login", "Successful sign-in")
-            destination = url_for("admin_dashboard" if row["role"] == "admin" else "index")
+            destination = url_for("admin_dashboard" if row["role"] == "admin" else "dashboard")
             return redirect(f"/w/{workspace_id}{destination}")
-        log_activity(row["id"] if row else None, email, "failed_login", "Invalid credentials or inactive account")
-        flash("Email or password is incorrect.", "error")
-    return render_template("login.html", active_user=None)
+        log_activity(row["id"] if row else None, email, "failed_login", "Invalid credentials, inactive account, or wrong sign-in area")
+        flash("Email or password is incorrect for this sign-in area.", "error")
+    return render_template("login.html", login_role=expected_role)
+
+
+app.add_url_rule("/admin/login", endpoint="admin_login", view_func=login, methods=["GET", "POST"])
 
 
 @app.route("/logout", methods=["POST"])
@@ -618,8 +621,9 @@ def login():
 def logout():
     user = current_user()
     log_activity(user["id"], user["email"], "logout", "Signed out")
+    destination = "/admin/login" if user["role"] == "admin" else "/login"
     session.clear()
-    return redirect("/login")
+    return redirect(destination)
 
 
 @app.route("/dashboard")
@@ -628,7 +632,15 @@ def dashboard():
     user = current_user()
     if user["role"] == "admin":
         return redirect(url_for("admin_dashboard"))
-    return redirect(url_for("user_history"))
+    with db_connection() as con:
+        total_scans = con.execute(
+            "SELECT COUNT(*) AS n FROM prediction_history WHERE user_id=?", (user["id"],)
+        ).fetchone()["n"]
+        scans = con.execute(
+            "SELECT crop,disease,confidence,image_name,created_at FROM prediction_history WHERE user_id=? ORDER BY id DESC LIMIT 8",
+            (user["id"],),
+        ).fetchall()
+    return render_template("dashboard.html", user=user, total_scans=total_scans, scans=scans)
 
 
 @app.route("/history")
@@ -727,7 +739,13 @@ def admin_user_status(user_id):
     return redirect(url_for("admin_dashboard"))
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
+def home():
+    """Public introduction page; visitors can understand the service before signing in."""
+    return render_template("landing.html")
+
+
+@app.route("/scan", methods=["GET", "POST"])
 @login_required
 def index():
     lang = request.args.get("lang", request.form.get("lang", "en"))
@@ -940,7 +958,8 @@ def forbidden(_):
     return render_template(
         "login.html",
         active_user=current_user(),
-        auth_error="This account does not have permission to open that page. Sign in with an administrator account or switch accounts below.",
+        auth_error="This account does not have permission to open that page. Sign in with an administrator account.",
+        login_role="admin",
     ), 403
 
 
@@ -952,6 +971,7 @@ def bad_request(error):
             "login.html",
             active_user=current_user(),
             auth_error="This form or sign-in session expired. Refresh the page and try again.",
+            login_role="admin" if request.path.endswith("/admin/login") else "user",
         ), 400
     return error
 

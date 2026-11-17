@@ -1,0 +1,40 @@
+/* Public AgriSage introduction page */
+.landing-page{min-height:100vh;background:#f7faf4;color:#263f2c}
+.landing-header{height:76px;padding:0 clamp(20px,6vw,88px);display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #e6eee1}
+.landing-brand{display:inline-flex;align-items:center;gap:9px;color:#285c35;text-decoration:none;font-size:24px;font-weight:900;letter-spacing:-.8px}
+.landing-header nav{display:flex;align-items:center;gap:clamp(14px,3vw,34px)}
+.landing-header nav a{color:#55715a;text-decoration:none;font-size:13px;font-weight:750}
+.landing-header nav a:hover{color:#2d773d}
+.landing-header nav .landing-admin-link{padding:9px 14px;border:1px solid #dce8d7;border-radius:10px}
+.landing-hero{width:min(1240px,calc(100% - 40px));margin:48px auto 62px;display:grid;grid-template-columns:1.08fr .92fr;align-items:center;gap:48px}
+.landing-hero-copy{padding:22px 0}
+.landing-eyebrow{display:inline-block;color:#6b915c;font-size:10px;font-weight:900;letter-spacing:1.55px;text-transform:uppercase}
+.landing-hero h1{margin:17px 0 18px;color:#244b2e;font-size:clamp(37px,5.2vw,66px);line-height:1.08;letter-spacing:-2.7px}
+.landing-hero h1 span{color:#65944f}
+.landing-hero-copy>p{max-width:570px;color:#6c7e6c;font-size:16px;line-height:1.8;margin:0 0 27px}
+.landing-actions{display:flex;flex-wrap:wrap;gap:12px}
+.landing-button{min-height:48px;display:inline-flex;align-items:center;justify-content:center;gap:14px;padding:0 19px;border-radius:11px;text-decoration:none;font-size:13px;font-weight:850;transition:transform .15s ease,background .15s ease}
+.landing-button:hover{transform:translateY(-1px)}
+.landing-button-primary{background:#397d43;color:#fff;box-shadow:0 8px 18px rgba(57,125,67,.16)}
+.landing-button-primary:hover{background:#2f6e39}
+.landing-button-secondary{background:#fff;color:#416d46;border:1px solid #dce8d7}
+.landing-trust{display:flex;align-items:center;gap:9px;margin-top:22px;color:#81917e;font-size:11px}
+.landing-trust span{color:#5d9452;font-weight:900;margin-left:4px}
+.landing-hero-art{min-height:390px;position:relative;overflow:hidden;border-radius:28px;background:linear-gradient(180deg,rgba(20,65,31,.02),rgba(20,65,31,.08)),url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=85') center/cover;box-shadow:0 22px 48px rgba(41,83,42,.13)}
+.landing-art-label{position:absolute;left:20px;right:20px;bottom:20px;display:flex;align-items:center;gap:12px;padding:15px 17px;border:1px solid rgba(255,255,255,.6);border-radius:15px;background:rgba(255,255,255,.93);backdrop-filter:blur(8px)}
+.landing-art-label>span{font-size:25px}.landing-art-label strong,.landing-art-label small{display:block}.landing-art-label strong{color:#315b36;font-size:13px}.landing-art-label small{margin-top:4px;color:#7b8978;font-size:11px}
+.landing-benefits{padding:58px 20px 68px;background:#fff}
+.landing-section-heading{text-align:center;max-width:620px;margin:0 auto 30px}
+.landing-section-heading h2,.landing-entry-strip h2{margin:10px 0;color:#294f32;font-size:clamp(25px,3.5vw,36px);letter-spacing:-1.1px}
+.landing-section-heading p,.landing-entry-strip p{margin:0;color:#7b8978;font-size:13px;line-height:1.7}
+.landing-benefit-grid{width:min(1120px,100%);margin:0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}
+.landing-benefit-card{padding:24px 23px;border:1px solid #e7eee2;border-radius:16px;background:#fbfdf9}
+.landing-benefit-icon{width:43px;height:43px;display:grid;place-items:center;border-radius:13px;background:#edf5e8;font-size:21px}
+.landing-benefit-card h3{margin:17px 0 8px;color:#345c39;font-size:16px}
+.landing-benefit-card p{margin:0;color:#7b8978;font-size:12px;line-height:1.75}
+.landing-entry-strip{width:min(1120px,calc(100% - 40px));margin:34px auto;padding:26px 30px;display:flex;align-items:center;justify-content:space-between;gap:24px;border:1px solid #e1ebdc;border-radius:18px;background:#f0f6eb}
+.landing-entry-strip h2{font-size:23px;margin:7px 0 5px}
+.landing-footer{min-height:82px;padding:18px clamp(20px,6vw,88px);display:flex;align-items:center;justify-content:space-between;gap:16px;background:#fff;border-top:1px solid #e6eee1}
+.landing-footer .landing-brand{font-size:18px}.landing-footer>span{color:#849181;font-size:11px}
+@media(max-width:760px){.landing-header{height:auto;min-height:68px;padding:14px 18px}.landing-header nav{gap:12px}.landing-header nav a{font-size:11px}.landing-hero{grid-template-columns:1fr;margin:24px auto 38px;gap:24px}.landing-hero-copy{padding:10px 0}.landing-hero-art{min-height:270px}.landing-benefit-grid{grid-template-columns:1fr}.landing-entry-strip{align-items:flex-start;flex-direction:column;padding:23px}.landing-footer{align-items:flex-start;flex-direction:column;justify-content:center}}
+@media(max-width:430px){.landing-header nav a:first-child{display:none}.landing-hero h1{letter-spacing:-1.6px}.landing-actions{display:grid}.landing-button{width:100%;box-sizing:border-box}.landing-trust{flex-wrap:wrap}}

@@ -37,6 +37,47 @@ class AuthenticationTests(unittest.TestCase):
         with client.session_transaction() as sess:
             sess["_csrf_token"] = "auth-test-csrf"
 
+
+    def test_public_homepage_explains_farmer_and_admin_entry(self):
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Grow with confidence", response.data)
+        self.assertIn(b"Get started as a farmer", response.data)
+        self.assertIn(b"/admin/login", response.data)
+        self.assertNotIn(b"Sign in to AgroSage", response.data)
+
+    def test_farmer_and_admin_login_routes_enforce_account_roles(self):
+        farmer_on_admin = self.client.post("/admin/login", data={
+            "_csrf_token": "auth-test-csrf",
+            "email": "farmer@example.com",
+            "password": "farmer-password-123",
+        })
+        self.assertEqual(farmer_on_admin.status_code, 200)
+        self.assertIn(b"Email or password is incorrect", farmer_on_admin.data)
+
+        admin_on_farmer = self.client.post("/login", data={
+            "_csrf_token": "auth-test-csrf",
+            "email": "admin@example.com",
+            "password": "admin-password-123",
+        })
+        self.assertEqual(admin_on_farmer.status_code, 200)
+        self.assertIn(b"Email or password is incorrect", admin_on_farmer.data)
+
+    def test_farmer_login_opens_farmer_dashboard(self):
+        client = app.test_client()
+        self.set_csrf(client)
+        response = client.post("/login", data={
+            "_csrf_token": "auth-test-csrf",
+            "email": "farmer@example.com",
+            "password": "farmer-password-123",
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/dashboard", response.headers["Location"])
+        dashboard = client.get(response.headers["Location"])
+        self.assertEqual(dashboard.status_code, 200)
+        self.assertIn(b"Hello, Farmer One", dashboard.data)
+        self.assertIn(b"Start a disease scan", dashboard.data)
+
     def test_registration_hashes_password_and_creates_farmer_role(self):
         response = self.client.post("/register", data={
             "_csrf_token": "auth-test-csrf",
@@ -73,10 +114,10 @@ class AuthenticationTests(unittest.TestCase):
     def test_two_accounts_keep_independent_sessions_in_two_tabs(self):
         client = app.test_client()
 
-        # Simulate two login tabs opened before either form is submitted.
+        # Simulate separate farmer and administrator sign-in tabs opened before either is submitted.
         import re
         first_form = client.get("/login").data
-        second_form = client.get("/login").data
+        second_form = client.get("/admin/login").data
         first_csrf = re.search(rb'name="_csrf_token" value="([^"]+)"', first_form).group(1).decode("utf-8")
         second_csrf = re.search(rb'name="_csrf_token" value="([^"]+)"', second_form).group(1).decode("utf-8")
 
@@ -90,7 +131,7 @@ class AuthenticationTests(unittest.TestCase):
 
         # The second already-open login form still works after the first login
         # removed the old shared root cookie.
-        admin_login = client.post("/login", data={
+        admin_login = client.post("/admin/login", data={
             "_csrf_token": second_csrf,
             "email": "admin@example.com",
             "password": "admin-password-123",
