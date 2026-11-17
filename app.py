@@ -556,7 +556,7 @@ def crop_options_for_model(lang):
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if current_user():
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("user_history"))
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         email = request.form.get("email", "").strip().lower()
@@ -606,7 +606,7 @@ def login():
             workspace_id = secrets.token_urlsafe(24)
             request.environ["agrisage_new_workspace_id"] = workspace_id
             log_activity(row["id"], row["email"], "login", "Successful sign-in")
-            destination = url_for("admin_dashboard" if row["role"] == "admin" else "dashboard")
+            destination = url_for("admin_dashboard" if row["role"] == "admin" else "user_history")
             return redirect(f"/w/{workspace_id}{destination}")
         log_activity(row["id"] if row else None, email, "failed_login", "Invalid credentials, inactive account, or wrong sign-in area")
         flash("Email or password is incorrect for this sign-in area.", "error")
@@ -632,15 +632,9 @@ def dashboard():
     user = current_user()
     if user["role"] == "admin":
         return redirect(url_for("admin_dashboard"))
-    with db_connection() as con:
-        total_scans = con.execute(
-            "SELECT COUNT(*) AS n FROM prediction_history WHERE user_id=?", (user["id"],)
-        ).fetchone()["n"]
-        scans = con.execute(
-            "SELECT crop,disease,confidence,image_name,created_at FROM prediction_history WHERE user_id=? ORDER BY id DESC LIMIT 8",
-            (user["id"],),
-        ).fetchall()
-    return render_template("dashboard.html", user=user, total_scans=total_scans, scans=scans)
+    # Farmers use scan history as their landing page; there is no separate
+    # farmer dashboard in the user experience.
+    return redirect(url_for("user_history"))
 
 
 @app.route("/history")
