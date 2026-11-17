@@ -79,7 +79,7 @@ class PredictionFlowTests(unittest.TestCase):
                 buffer = io.BytesIO()
                 Image.new("RGB", (80, 80), color).save(buffer, format="JPEG")
                 buffer.seek(0)
-                response = self.post("/", data={
+                response = self.post("/scan", data={
                     "lang": "en", "crop": "auto", "leaf_image": (buffer, filename)
                 }, content_type="multipart/form-data")
                 self.assertEqual(response.status_code, 200)
@@ -104,7 +104,7 @@ class PredictionFlowTests(unittest.TestCase):
         Image.new("RGB", (240, 240), (220, 40, 35)).save(buffer, format="JPEG")
         buffer.seek(0)
         with patch("app.get_model") as model, patch("app.disease_guidance") as guidance:
-            response = self.post("/", data={
+            response = self.post("/scan", data={
                 "lang": "en", "crop": "auto", "leaf_image": (buffer, "car.jpg")
             }, content_type="multipart/form-data", follow_redirects=True)
         self.assertEqual(response.status_code, 200)
@@ -126,7 +126,7 @@ class PredictionFlowTests(unittest.TestCase):
              patch("app.get_model", return_value=(DummyModel(), TARGET_LABELS)), \
              patch("app.verify_diagnosis_image", return_value={"status": "verified", "verdict": "match", "message": "review agrees", "reason": "", "observed_crop": "corn", "observed_disease": "common rust"}), \
              patch("app.disease_guidance", return_value=research_result) as ai:
-            response = self.post("/", data={
+            response = self.post("/scan", data={
                 "lang": "en", "crop": "auto",
                 "leaf_image": (buffer, "leaf.jpg")
             }, content_type="multipart/form-data")
@@ -156,7 +156,7 @@ class PredictionFlowTests(unittest.TestCase):
             patch("app.verify_diagnosis_image", return_value=disagreement),
             patch("app.disease_guidance") as guidance,
         ):
-            response = self.post("/", data={
+            response = self.post("/scan", data={
                 "lang": "en", "crop": "auto",
                 "leaf_image": (buffer, "uncertain-leaf.jpg")
             }, content_type="multipart/form-data")
@@ -190,7 +190,7 @@ class PredictionFlowTests(unittest.TestCase):
             patch("app.verify_diagnosis_image", return_value=uncertain),
             patch("app.disease_guidance", return_value=research_result) as guidance,
         ):
-            response = self.post("/", data={
+            response = self.post("/scan", data={
                 "lang": "en", "crop": "auto",
                 "leaf_image": (buffer, "uncertain-but-valid-leaf.jpg")
             }, content_type="multipart/form-data")
